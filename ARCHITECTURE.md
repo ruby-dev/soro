@@ -1,6 +1,6 @@
 # Soro Architecture
 
-This document describes the implemented Phase 1 persistence foundation and Phase 2 HTTP/API layer. Future-phase designs are intentionally not presented as finished APIs.
+This document describes the implemented Phase 1 persistence foundation, Phase 2 HTTP/API layer, and Phase 3 application services. Future-phase designs are intentionally not presented as finished APIs.
 
 ## Dependency direction
 
@@ -13,6 +13,10 @@ soro App
   │    ├─ resource[T, Create, Update, Response]
   │    ├─ query definitions
   │    └─ serializer contracts
+  ├─ health / readiness
+  ├─ observability ── OpenTelemetry ── OTLP / Prometheus
+  ├─ jobs ── River ── shared database/sql facade
+  ├─ mail ── SMTP / console / capture
   └─ database ── pgxpool ── PostgreSQL
        ├─ Bun facade
        ├─ lifecycle registry
@@ -44,6 +48,28 @@ Mutating resource callbacks join one Soro transaction covering authorization, re
 List handlers parse router-neutral URL queries against a resource-owned definition, apply filters/search/sorts using fixed Bun identifiers, execute a visible count query, and then execute the paged select. Client field names never enter SQL. Definitions are validated at resource construction and unknown parameters are rejected at request time.
 
 Every framework and Huma validation failure is rendered as the Soro error envelope. Internal errors remain available to server code but are replaced with a safe public message. The API maintains a route registry for inspection and the future CLI.
+
+## Jobs and transactional enqueueing
+
+River uses its `riverdatabasesql` driver against Bun's existing `database/sql` facade. Bun and River therefore share one pgx pool. The Soro transaction coordinator exposes the embedded `*sql.Tx` only through a matching transaction context; `jobs.EnqueueTx` passes that value to River's `InsertTx`. Repository writes and job insertion are one PostgreSQL transaction, and workers cannot see the job before commit.
+
+Job argument structs retain River's explicit stable `Kind()` identifier and normal JSON representation. `jobs.Register` binds an argument type to a typed function closure, allowing applications to capture only their required dependencies without importing the root application from the jobs package. Soro wraps River insertion options and lifecycle but exposes River's durable implementation rather than reimplementing a queue.
+
+Trace context is injected into River metadata and extracted by the typed worker. Job telemetry includes kind, queue, attempt, duration, and outcome; job IDs and argument values are excluded from metric labels.
+
+## Mail delivery
+
+Mail messages are transport-neutral values. The SMTP, console, and capture transports implement one `Send(context.Context, *Message)` interface. Standard-library text and HTML templates render into messages; HTML data is escaped by `html/template`.
+
+Immediate delivery records a client span, bounded transport metric, and structured outcome log. `Delivery.SendLater` inserts an internal typed River job through the same job client, so calling it from a repository/resource transaction makes mail visibility atomic with application data. BCC recipients are passed to SMTP envelope commands and omitted from MIME headers.
+
+## Observability and infrastructure endpoints
+
+Each App owns its tracer provider, meter provider, propagator, and Prometheus registry. OTLP HTTP export is enabled only when configured; `/metrics` always serves the local registry. Soro passes providers directly instead of relying on process-global OTel state.
+
+HTTP middleware extracts W3C trace context, creates server spans, records method/status metrics, and emits one `slog` record with request ID, duration, remote IP, and trace ID when available. Database instrumentation records only a fixed operation class and duration; it never records SQL text or bind values. Job and mail instrumentation follow the same bounded-label rule.
+
+`/health` performs no dependency work. `/ready` runs registered checks under a deadline and includes PostgreSQL by default. `App.Serve` owns HTTP timeouts, starts enabled workers, and coordinates graceful shutdown. `App.Close` is idempotent and stops workers before flushing telemetry and closing PostgreSQL.
 
 ## Repository contract
 

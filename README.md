@@ -4,7 +4,7 @@ Soro is an opinionated Go application framework for building production REST API
 
 Soro is developed by DataSoro. Its developer experience is inspired by the productivity of Rails API applications, while its implementation keeps normal Go structs, interfaces, generics, `context.Context`, explicit dependencies, PostgreSQL, and Bun available to application code.
 
-> Status: pre-release. Phases 1 and 2 are implemented; the public API is not stable.
+> Status: pre-release. Phases 1 through 3 are implemented; the public API is not stable.
 
 ## Implemented foundation
 
@@ -26,8 +26,14 @@ The current foundation includes:
 - pagination, allowlisted filtering, literal `ILIKE` search, and sorting;
 - standard error envelopes, server-generated request IDs, and safe panic recovery;
 - resource authorization/callback/scope hooks and route introspection.
+- River-backed typed jobs sharing Bun's pool and transaction;
+- SMTP, console, and capture mail with transaction-safe `SendLater`;
+- structured HTTP/job/mail logging and W3C trace propagation;
+- OpenTelemetry tracing, OTLP HTTP export, and Prometheus metrics;
+- `/health`, `/ready`, and `/metrics` infrastructure endpoints;
+- configured HTTP timeouts and graceful server/worker shutdown.
 
-River jobs, mail, OpenTelemetry, metrics, health/readiness, production lifecycle management, and CLI generators belong to later phases.
+CLI commands, generators, scaffolding, seed tooling, and developer-experience utilities belong to later phases.
 
 ## Requirements
 
@@ -122,6 +128,41 @@ err := users.Transaction(ctx, func(txCtx context.Context, txUsers *repository.Re
 
 Nested calls join the outer SQL transaction. A nested error marks the outer transaction rollback-only, even if an intermediate callback catches it. Phase 1 does not implement savepoints. `AfterCommit` executes only after the outer commit succeeds; an error from it is returned after data has committed and cannot roll the transaction back.
 
+## Jobs and mail
+
+Job arguments use a stable kind and ordinary JSON fields:
+
+```go
+type SendWelcomeEmail struct {
+	UserID uuid.UUID `json:"user_id" river:"unique"`
+}
+
+func (SendWelcomeEmail) Kind() string { return "send_welcome_email" }
+
+err := jobs.Register(app.Jobs, func(ctx context.Context, args SendWelcomeEmail) error {
+	return sendWelcome(ctx, args.UserID)
+})
+```
+
+Enqueue normally or inside the current Soro transaction:
+
+```go
+_, err := app.Jobs.Enqueue(ctx, SendWelcomeEmail{UserID: user.ID},
+	jobs.Queue("mailers"), jobs.Priority(2), jobs.UniqueByArgs())
+```
+
+When `ctx` carries a Soro transaction, `Enqueue` automatically uses River's transactional insertion. `EnqueueTx` is available when transactional context must be required explicitly.
+
+Mail delivery is immediate or queued:
+
+```go
+delivery := app.Mailer.Delivery(&mail.Message{
+	To: []string{user.Email}, Subject: "Welcome", Text: "Hello",
+})
+err = delivery.Send(ctx)
+_, err = delivery.SendLater(ctx, jobs.Delay(5*time.Minute))
+```
+
 ## Configuration
 
 Configuration precedence is:
@@ -133,7 +174,7 @@ config/{SORO_ENV}.yaml
 environment variables
 ```
 
-Supported variables include `SORO_ENV`, `SORO_APP_NAME`, `DATABASE_URL`, `SORO_HTTP_PORT`, `SORO_API_BASE_PATH`, `SORO_MAX_REQUEST_BODY`, `SORO_DATABASE_MIN_CONNS`, `SORO_DATABASE_MAX_CONNS`, and the documented duration fields in `config.Config`. Unknown YAML fields fail startup. Production requires `DATABASE_URL`.
+Supported variables include `SORO_ENV`, `SORO_APP_NAME`, `DATABASE_URL`, HTTP timeout variables, `SORO_JOBS_*`, `SORO_MAIL_*`, `SMTP_*`, `SORO_OTEL_ENABLED`, `OTEL_EXPORTER_OTLP_ENDPOINT`, and the database pool variables. Unknown YAML fields fail startup. Production requires `DATABASE_URL` and SMTP mail configuration. See [configuration](docs/configuration.md).
 
 ## Run the example
 
@@ -161,6 +202,8 @@ mise exec -- go run ./examples/basic/cmd/server
 
 Then open `http://localhost:8080/docs` or call `http://localhost:8080/api/v1/users`.
 
+Set `SORO_JOBS_ENABLED=true` to work the example's transactionally enqueued welcome-mail jobs in the server process. Production deployments can run the same library worker lifecycle from a dedicated process; the `soro jobs work` CLI arrives in Phase 4.
+
 ## Tests
 
 Unit tests do not require external services. PostgreSQL integration tests use schema isolation and run when `SORO_TEST_DATABASE_URL` is present:
@@ -182,11 +225,16 @@ CI also generates an aggregate coverage profile and enforces a 70% statement flo
 
 - [Phase 1 plan](PHASE1.md)
 - [Phase 2 plan and implementation](PHASE2.md)
+- [Phase 3 plan and implementation](PHASE3.md)
 - [Architecture](ARCHITECTURE.md)
 - [Routing](docs/routing.md)
 - [Resources](docs/resources.md)
 - [Querying](docs/querying.md)
 - [Serialization](docs/serialization.md)
+- [Configuration](docs/configuration.md)
+- [Jobs](docs/jobs.md)
+- [Mail](docs/mail.md)
+- [Observability](docs/observability.md)
 
 ## License
 
