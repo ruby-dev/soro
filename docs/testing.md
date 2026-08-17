@@ -137,3 +137,22 @@ SORO_TEST_DATABASE_URL='postgres://postgres:postgres@localhost:5432/soro_test?ss
 
 When the variable is absent, PostgreSQL tests skip locally. CI always supplies
 it, so integration coverage cannot silently disappear there.
+
+## Benchmarks
+
+Pure lifecycle, query, and factory baselines run without services:
+
+```sh
+go test -run '^$' -bench . ./lifecycle ./query ./factory
+```
+
+Repository CRUD and in-process HTTP baselines require PostgreSQL:
+
+```sh
+SORO_TEST_DATABASE_URL='postgres://postgres:postgres@localhost:5432/soro_test?sslmode=disable' \
+  go test -run '^$' -bench . ./repository ./testutil
+```
+
+Benchmarks report allocations and latency for comparison during development;
+they are not CI pass/fail thresholds because host variance has not yet been
+characterized.

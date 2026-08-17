@@ -18,18 +18,25 @@ func TestGeneratedPostgreSQLMigrationAppliesAndRollsBack(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(statuses) != 1 || !statuses[0].Applied || statuses[0].AppliedAt == nil {
+	if len(statuses) != len(basic.Migrations) {
 		t.Fatalf("unexpected status: %+v", statuses)
 	}
-	if err := migrator.Rollback(t.Context(), basic.Migrations, 1); err != nil {
+	for _, status := range statuses {
+		if !status.Applied || status.AppliedAt == nil {
+			t.Fatalf("unexpected status: %+v", statuses)
+		}
+	}
+	if err := migrator.Rollback(t.Context(), basic.Migrations, len(basic.Migrations)); err != nil {
 		t.Fatal(err)
 	}
-	exists, err := db.Bun().NewSelect().Table("information_schema.tables").
-		Where("table_schema = current_schema()").Where("table_name = 'users'").Exists(t.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if exists {
-		t.Fatal("users table still exists after rollback")
+	for _, table := range []string{"projects", "users", "accounts"} {
+		exists, err := db.Bun().NewSelect().Table("information_schema.tables").
+			Where("table_schema = current_schema()").Where("table_name = ?", table).Exists(t.Context())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if exists {
+			t.Fatalf("%s table still exists after rollback", table)
+		}
 	}
 }

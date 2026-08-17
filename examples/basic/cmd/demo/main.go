@@ -33,10 +33,10 @@ func run(ctx context.Context) error {
 	if err := migrate.New(app.DB).Apply(ctx, basic.Migrations); err != nil {
 		return err
 	}
-	users := repository.New[basic.User](app.DB)
-	if err := basic.Seed(ctx, users); err != nil {
+	if err := basic.SeedApplication(ctx, app.DB); err != nil {
 		return err
 	}
+	users := repository.New[basic.User](app.DB)
 	user := &basic.User{
 		Base:  model.Base{Name: "Dustin", Metadata: model.Metadata{"source": "phase1-demo"}},
 		Email: "USER@EXAMPLE.COM", Active: true,

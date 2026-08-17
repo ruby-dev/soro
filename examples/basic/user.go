@@ -7,12 +7,14 @@ import (
 
 	"github.com/datasoro/soro/lifecycle"
 	"github.com/datasoro/soro/model"
+	"github.com/google/uuid"
 )
 
 type User struct {
 	model.Base
-	Email  string `bun:"email,notnull" json:"email" validate:"required,email"`
-	Active bool   `bun:"active,notnull,default:true" json:"active"`
+	Email     string     `bun:"email,notnull" json:"email" validate:"required,email"`
+	Active    bool       `bun:"active,notnull,default:true" json:"active"`
+	AccountID *uuid.UUID `bun:"account_id,nullzero" json:"account_id,omitempty"`
 
 	EmailChanged bool `bun:"-" json:"-"`
 }

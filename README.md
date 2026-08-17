@@ -208,13 +208,10 @@ Supported variables include `SORO_ENV`, `SORO_APP_NAME`, `DATABASE_URL`, `SORO_L
 
 ## Run the example
 
-Start PostgreSQL using any local installation, or Docker when its daemon is available:
+Start PostgreSQL using any local installation or the checked-in Compose service:
 
 ```sh
-docker run --rm --name soro-postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=soro \
-  -p 5432:5432 postgres:17-alpine
+docker compose up -d postgres
 ```
 
 In another shell:
@@ -224,13 +221,17 @@ export DATABASE_URL='postgres://postgres:postgres@localhost:5432/soro?sslmode=di
 mise exec -- go run ./examples/basic/cmd/demo
 ```
 
-The Phase 1 persistence demonstration applies its migration, creates and updates a user, soft-deletes it, restores it, and explicitly force-deletes it. Run the Phase 2 HTTP example instead with:
+The persistence demonstration applies its migrations, idempotently seeds an Account/User/Project relationship graph, creates and updates a user, soft-deletes it, restores it, and explicitly force-deletes it. Run the HTTP example instead with:
 
 ```sh
 mise exec -- go run ./examples/basic/cmd/server
 ```
 
-Then open `http://localhost:8080/docs` or call `http://localhost:8080/api/v1/users`.
+Then open `http://localhost:8080/docs` or call the `/api/v1/accounts`,
+`/api/v1/users`, and `/api/v1/projects` resources. The example demonstrates
+explicit UUID relationships, metadata, factories/seeds, lifecycle changes,
+allowlisted filtering/search/sorting, transactional jobs, captured or SMTP
+mail, tracing, and metrics.
 
 Set `SORO_JOBS_ENABLED=true` to work the example's transactionally enqueued welcome-mail jobs in the server process. Generated applications can run a dedicated worker with `soro jobs work`.
 
@@ -259,6 +260,11 @@ CI also generates an aggregate coverage profile and enforces a 70% statement flo
 - [Phase 4 plan and implementation](PHASE4.md)
 - [Phase 5 plan and implementation](PHASE5.md)
 - [Architecture](ARCHITECTURE.md)
+- [Getting started](docs/getting-started.md)
+- [Models](docs/models.md)
+- [Repositories](docs/repositories.md)
+- [Lifecycle](docs/lifecycle.md)
+- [Validation](docs/validation.md)
 - [Routing](docs/routing.md)
 - [Testing](docs/testing.md)
 - [Resources](docs/resources.md)

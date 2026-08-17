@@ -26,6 +26,8 @@ func main() {
 		log.Fatal(err)
 	}
 	userRepository := repository.New[basic.User](app.DB)
+	accountRepository := repository.New[basic.Account](app.DB)
+	projectRepository := repository.New[basic.Project](app.DB)
 	if err := basic.RegisterJobs(app.Jobs, userRepository, app.Mailer); err != nil {
 		log.Fatal(err)
 	}
@@ -33,8 +35,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	accounts, err := basic.NewAccountResource(accountRepository)
+	if err != nil {
+		log.Fatal(err)
+	}
+	projects, err := basic.NewProjectResource(projectRepository)
+	if err != nil {
+		log.Fatal(err)
+	}
 	if err := app.API.Version("v1", func(v1 *api.Router) {
+		if err := v1.Resource("/accounts", accounts); err != nil {
+			log.Fatal(err)
+		}
 		if err := v1.Resource("/users", users); err != nil {
+			log.Fatal(err)
+		}
+		if err := v1.Resource("/projects", projects); err != nil {
 			log.Fatal(err)
 		}
 	}); err != nil {

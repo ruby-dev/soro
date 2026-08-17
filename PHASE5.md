@@ -115,8 +115,8 @@ API review uses three rules:
    integration in generated resources and the basic application.
 3. **Implemented:** Safe generator transformation hooks and generator
    customization tests.
-4. Benchmarks, complete documentation set, expanded example, and CI example
-   verification.
+4. **Implemented:** Benchmarks, complete documentation set, expanded
+   Account/User/Project example, Compose PostgreSQL, and CI example verification.
 5. Exported API audit, pre-v1 compatibility policy, release checklist, full
    formatting/test/race/vet/staticcheck/govulncheck gates, and status update.
 

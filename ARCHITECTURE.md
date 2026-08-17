@@ -154,6 +154,21 @@ preflight pass. Managed markers, overwrite checks, duplicate detection, and
 atomic file replacement remain framework-owned, so customization cannot bypass
 generator safety.
 
+## Test and example architecture
+
+The public `testutil` package boots the normal application container against a
+schema-isolated PostgreSQL connection, capture mail, disabled background
+workers, local telemetry, and an `httptest.Server`. It does not substitute an
+in-memory SQL dialect. Typed factories are persistence-agnostic and are bound
+to repositories explicitly by applications or `sorotest.NewFactory`.
+
+The basic example uses Account, User, and Project UUID relationships and exposes
+all three as resources. Its idempotent seed builds the graph through normal
+repositories/factories. The same example retains lifecycle dirty tracking,
+transaction-safe welcome jobs, templates/mail, metadata, query allowlists,
+OpenAPI, tracing, and metrics. `compose.yaml` supplies only PostgreSQL; no
+production dependency is required for local tests.
+
 PostgreSQL create/drop parse the configured URL with pgx, connect through the `postgres` maintenance database, and quote the resolved identifier. Protected maintenance databases are rejected; physical drop additionally requires the CLI's `--force` confirmation.
 
 ## Known limits
