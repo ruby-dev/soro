@@ -148,6 +148,12 @@ The global `soro` command owns infrastructure behavior that can be discovered fr
 
 Resource and job registration files are generator-owned and rewritten deterministically from marker comments in generated source. User-owned model, resource, serializer, validator, job, and mailer files are never overwritten unless `--force` is explicit. Resource generation renders and validates the complete output set before writing.
 
+Phase 5 generator transformers operate only on rendered content and never on
+paths. They run in registration order before final Go formatting and the full
+preflight pass. Managed markers, overwrite checks, duplicate detection, and
+atomic file replacement remain framework-owned, so customization cannot bypass
+generator safety.
+
 PostgreSQL create/drop parse the configured URL with pgx, connect through the `postgres` maintenance database, and quote the resolved identifier. Protected maintenance databases are rejected; physical drop additionally requires the CLI's `--force` confirmation.
 
 ## Known limits

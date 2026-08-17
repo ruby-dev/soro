@@ -78,6 +78,34 @@ soro generate mailer NAME
 
 Generated jobs are added to the application job registry. Generated mailers use Soro templates and return a normal `mail.Delivery` for immediate or queued sending.
 
+## Generator customization
+
+Applications that embed generator behavior in their own Go tooling can install
+ordered content transformers:
+
+```go
+generator, err := generate.Open(root, false)
+if err != nil {
+    return err
+}
+err = generator.UseTransformers(func(path string, content []byte) ([]byte, error) {
+    if strings.HasSuffix(path, ".go") {
+        content = append(content, []byte("\n// application convention\n")...)
+    }
+    return content, nil
+})
+```
+
+Transformers receive slash-separated relative paths and copies of rendered
+content. They cannot change output paths. Soro applies final Go formatting and
+all duplicate, overwrite, managed-marker, and atomic-write checks after
+transformation. An error, nil content, invalid transformed Go, or removal of a
+managed-file marker aborts the complete generation set before any file is
+written.
+
+This is intentionally a Go extension point rather than a proprietary template
+language. The normal CLI continues to use Soro's maintained templates.
+
 ## Database commands
 
 ```text

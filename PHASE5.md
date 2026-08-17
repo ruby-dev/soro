@@ -113,7 +113,8 @@ API review uses three rules:
    typed factories, synchronous job handler execution, and tests.
 2. **Implemented:** Development logging/mail ergonomics and seed/factory
    integration in generated resources and the basic application.
-3. Safe generator transformation hooks and generator customization tests.
+3. **Implemented:** Safe generator transformation hooks and generator
+   customization tests.
 4. Benchmarks, complete documentation set, expanded example, and CI example
    verification.
 5. Exported API audit, pre-v1 compatibility policy, release checklist, full
