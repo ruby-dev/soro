@@ -34,6 +34,9 @@ func run(ctx context.Context) error {
 		return err
 	}
 	users := repository.New[basic.User](app.DB)
+	if err := basic.Seed(ctx, users); err != nil {
+		return err
+	}
 	user := &basic.User{
 		Base:  model.Base{Name: "Dustin", Metadata: model.Metadata{"source": "phase1-demo"}},
 		Email: "USER@EXAMPLE.COM", Active: true,

@@ -22,11 +22,17 @@ const (
 
 type Config struct {
 	App           AppConfig           `yaml:"app"`
+	Log           LogConfig           `yaml:"log"`
 	HTTP          HTTPConfig          `yaml:"http"`
 	Database      DatabaseConfig      `yaml:"database"`
 	Jobs          JobsConfig          `yaml:"jobs"`
 	Mail          MailConfig          `yaml:"mail"`
 	Observability ObservabilityConfig `yaml:"observability"`
+}
+
+type LogConfig struct {
+	Level  string `yaml:"level"`
+	Format string `yaml:"format"`
 }
 
 type AppConfig struct {
@@ -90,6 +96,7 @@ type DatabaseConfig struct {
 func Defaults() Config {
 	return Config{
 		App: AppConfig{Name: "soro-app", Environment: Development},
+		Log: LogConfig{Level: "info", Format: "auto"},
 		HTTP: HTTPConfig{
 			Port: 8080, APIBasePath: "/api", MaxRequestBody: 1024 * 1024,
 			ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second,
@@ -159,6 +166,12 @@ func (c Config) Validate() error {
 	case Development, Test, Production:
 	default:
 		return fmt.Errorf("config: unsupported SORO_ENV %q", c.App.Environment)
+	}
+	if c.Log.Level != "debug" && c.Log.Level != "info" && c.Log.Level != "warn" && c.Log.Level != "error" {
+		return fmt.Errorf("config: unsupported log.level %q", c.Log.Level)
+	}
+	if c.Log.Format != "auto" && c.Log.Format != "text" && c.Log.Format != "json" {
+		return fmt.Errorf("config: unsupported log.format %q", c.Log.Format)
 	}
 	if c.App.Environment == Production && strings.TrimSpace(c.Database.URL) == "" {
 		return errors.New("config: DATABASE_URL is required in production")
@@ -267,6 +280,8 @@ func applyEnvironment(config *Config, lookup func(string) (string, bool)) error 
 		config.HTTP.MaxRequestBody = parsed
 	}
 	for name, destination := range map[string]*string{
+		"SORO_LOG_LEVEL":              &config.Log.Level,
+		"SORO_LOG_FORMAT":             &config.Log.Format,
 		"SORO_JOBS_DEFAULT_QUEUE":     &config.Jobs.DefaultQueue,
 		"SORO_MAIL_TRANSPORT":         &config.Mail.Transport,
 		"SORO_MAIL_FROM":              &config.Mail.From,

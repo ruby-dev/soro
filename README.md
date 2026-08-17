@@ -204,7 +204,7 @@ config/{SORO_ENV}.yaml
 environment variables
 ```
 
-Supported variables include `SORO_ENV`, `SORO_APP_NAME`, `DATABASE_URL`, HTTP timeout variables, `SORO_JOBS_*`, `SORO_MAIL_*`, `SMTP_*`, `SORO_OTEL_ENABLED`, `OTEL_EXPORTER_OTLP_ENDPOINT`, and the database pool variables. Unknown YAML fields fail startup. Production requires `DATABASE_URL` and SMTP mail configuration. See [configuration](docs/configuration.md).
+Supported variables include `SORO_ENV`, `SORO_APP_NAME`, `DATABASE_URL`, `SORO_LOG_LEVEL`, `SORO_LOG_FORMAT`, HTTP timeout variables, `SORO_JOBS_*`, `SORO_MAIL_*`, `SMTP_*`, `SORO_OTEL_ENABLED`, `OTEL_EXPORTER_OTLP_ENDPOINT`, and the database pool variables. Unknown YAML fields fail startup. Production requires `DATABASE_URL` and SMTP mail configuration. The default logger uses readable text in development, JSON in production, and redacts standard secret-bearing fields. See [configuration](docs/configuration.md).
 
 ## Run the example
 

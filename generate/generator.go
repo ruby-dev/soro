@@ -69,10 +69,15 @@ func (generator *Generator) GenerateModel(rawName string, specifications []strin
 	if err != nil {
 		return nil, err
 	}
+	factorySource, err := renderFactory(generator.Module, name, fields)
+	if err != nil {
+		return nil, err
+	}
 	stamp := generator.Now().UTC().Format("20060102150405")
 	return generator.writeFiles([]generatedFile{
 		{path: filepath.Join("app", "models", name.Snake+".go"), content: modelSource, goFile: true},
 		{path: filepath.Join("app", "models", name.Snake+"_test.go"), content: modelTest, goFile: true},
+		{path: filepath.Join("app", "factories", name.Snake+".go"), content: factorySource, goFile: true},
 		{path: filepath.Join("db", "migrations", stamp+"_create_"+name.Table+".sql"), content: migrationSource},
 	})
 }
@@ -197,6 +202,7 @@ func (generator *Generator) GenerateResource(rawName string, specifications []st
 	}{
 		{filepath.Join("app", "models", name.Snake+".go"), func() ([]byte, error) { return renderModel(name, fields) }},
 		{filepath.Join("app", "models", name.Snake+"_test.go"), func() ([]byte, error) { return renderModelTest(name) }},
+		{filepath.Join("app", "factories", name.Snake+".go"), func() ([]byte, error) { return renderFactory(generator.Module, name, fields) }},
 		{filepath.Join("app", "serializers", name.Snake+".go"), func() ([]byte, error) { return renderSerializer(generator.Module, name, fields) }},
 		{filepath.Join("app", "validators", name.Snake+".go"), func() ([]byte, error) { return renderValidator(name, fields) }},
 		{filepath.Join("app", "api", "v1", name.Snake+"_resource.go"), func() ([]byte, error) { return renderResource(generator.Module, name, fields) }},

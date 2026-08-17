@@ -29,6 +29,8 @@ database:
 		"SORO_ENV":                    "test",
 		"SORO_APP_NAME":               "environment",
 		"SORO_HTTP_PORT":              "9090",
+		"SORO_LOG_LEVEL":              "debug",
+		"SORO_LOG_FORMAT":             "json",
 		"SORO_JOBS_ENABLED":           "true",
 		"SORO_JOBS_WORKERS":           "4",
 		"SORO_MAIL_TRANSPORT":         "capture",
@@ -54,8 +56,24 @@ database:
 	if loaded.HTTP.Port != 9090 {
 		t.Fatalf("unexpected HTTP config: %+v", loaded.HTTP)
 	}
+	if loaded.Log.Level != "debug" || loaded.Log.Format != "json" {
+		t.Fatalf("unexpected log config: %+v", loaded.Log)
+	}
 	if !loaded.Jobs.Enabled || loaded.Jobs.Workers != 4 || loaded.Mail.Transport != "capture" || loaded.Observability.OTLPEndpoint != "http://collector:4318" {
 		t.Fatalf("unexpected Phase 3 config: jobs=%+v mail=%+v observability=%+v", loaded.Jobs, loaded.Mail, loaded.Observability)
+	}
+}
+
+func TestLoggingConfigValidation(t *testing.T) {
+	settings := config.Defaults()
+	settings.Log.Level = "trace"
+	if err := settings.Validate(); err == nil || !strings.Contains(err.Error(), "log.level") {
+		t.Fatalf("expected log level error, got %v", err)
+	}
+	settings = config.Defaults()
+	settings.Log.Format = "xml"
+	if err := settings.Validate(); err == nil || !strings.Contains(err.Error(), "log.format") {
+		t.Fatalf("expected log format error, got %v", err)
 	}
 }
 

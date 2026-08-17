@@ -109,10 +109,10 @@ API review uses three rules:
 
 ## Implementation slices
 
-1. Test application, HTTP helpers, migrations, capture mail, typed factories,
-   synchronous job handler execution, and tests.
-2. Development logging/mail ergonomics and seed/factory integration in the
-   generated and basic applications.
+1. **Implemented:** Test application, HTTP helpers, migrations, capture mail,
+   typed factories, synchronous job handler execution, and tests.
+2. **Implemented:** Development logging/mail ergonomics and seed/factory
+   integration in generated resources and the basic application.
 3. Safe generator transformation hooks and generator customization tests.
 4. Benchmarks, complete documentation set, expanded example, and CI example
    verification.

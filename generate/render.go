@@ -61,6 +61,77 @@ func Test%sEmbedsSoroBase(t *testing.T) {
 `, name.Singular, name.Singular))
 }
 
+func renderFactory(module string, name Name, fields []Field) ([]byte, error) {
+	var source bytes.Buffer
+	writeLine(&source, "package factories")
+	writeLine(&source, "")
+	writeLine(&source, "import (")
+	writeLine(&source, "\t%q", "context")
+	writeLine(&source, "\t%q", "fmt")
+	if hasFactoryType(fields, Time) {
+		writeLine(&source, "\t%q", "time")
+	}
+	writeLine(&source, "\t%q", module+"/app/models")
+	writeLine(&source, "\t%q", FrameworkModule+"/factory")
+	writeLine(&source, "\t%q", FrameworkModule+"/model")
+	writeLine(&source, "\t%q", FrameworkModule+"/repository")
+	if hasFactoryType(fields, UUID) {
+		writeLine(&source, "\t%q", "github.com/google/uuid")
+	}
+	writeLine(&source, ")")
+	writeLine(&source, "")
+	writeLine(&source, "func New%sFactory(dbRepository *repository.Repository[models.%s]) (*factory.Factory[models.%s], error) {", name.Singular, name.Singular, name.Singular)
+	writeLine(&source, "\tif dbRepository == nil { return nil, fmt.Errorf(%q) }", name.Snake+" repository is required")
+	writeLine(&source, "\treturn factory.New(func(sequence uint64) *models.%s {", name.Singular)
+	writeLine(&source, "\t\tentity := &models.%s{Base: model.Base{Name: fmt.Sprintf(%q, sequence), Metadata: model.Metadata{%q: %q}}}", name.Singular, name.Singular+" %d", "source", "factory")
+	for _, field := range fields {
+		if field.Nullable {
+			continue
+		}
+		writeLine(&source, "\t\tentity.%s = %s", field.GoName, factoryDefault(field))
+	}
+	writeLine(&source, "\t\treturn entity")
+	writeLine(&source, "\t}, func(ctx context.Context, entity *models.%s) error { return dbRepository.Create(ctx, entity) })", name.Singular)
+	writeLine(&source, "}")
+	return formatted(source.String())
+}
+
+func factoryDefault(field Field) string {
+	if field.HasDefault {
+		return field.GoDefault()
+	}
+	switch field.Type {
+	case String, Text:
+		if field.Name == "email" {
+			return `fmt.Sprintf("user-%d@example.com", sequence)`
+		}
+		return fmt.Sprintf("fmt.Sprintf(%q, sequence)", field.Name+"-%d")
+	case Bool:
+		return "true"
+	case UUID:
+		return "uuid.New()"
+	case Int:
+		return "int64(sequence)"
+	case Float:
+		return "float64(sequence)"
+	case Time:
+		return "time.Now().UTC()"
+	case JSON:
+		return "model.Metadata{}"
+	default:
+		return ""
+	}
+}
+
+func hasFactoryType(fields []Field, fieldType FieldType) bool {
+	for _, field := range fields {
+		if field.Type == fieldType && !field.Nullable {
+			return true
+		}
+	}
+	return false
+}
+
 func renderSerializer(module string, name Name, fields []Field) ([]byte, error) {
 	var source bytes.Buffer
 	writeLine(&source, "package serializers")

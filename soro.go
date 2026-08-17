@@ -97,7 +97,14 @@ func New(ctx context.Context, options ...Option) (*App, error) {
 		return nil, err
 	}
 	if settings.logger == nil {
-		settings.logger = slog.New(slog.NewTextHandler(os.Stderr, nil))
+		logger, err := observability.NewLogger(observability.LoggerConfig{
+			Writer: os.Stderr, Environment: settings.config.App.Environment,
+			Level: settings.config.Log.Level, Format: settings.config.Log.Format,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("initialize Soro logger: %w", err)
+		}
+		settings.logger = logger
 	}
 	if settings.db == nil {
 		opened, err := database.Open(ctx, settings.config.Database)

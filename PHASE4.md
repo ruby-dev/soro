@@ -93,7 +93,7 @@ Factories, richer test application bootstrapping, development mail UI, generator
 1. Cobra root command, executable, help, versioning, and injectable process/database dependencies.
 2. Safe PostgreSQL create/drop plus runtime SQL migration discovery, splitting, status, rollback, and River migration integration.
 3. Validated field grammar, deterministic naming, atomic conflict-safe writes, and PostgreSQL-aware migration rendering.
-4. Application, model, resource, serializer, validator, migration, job, and mailer generation.
+4. Application, model, resource, serializer, validator, migration, job, and mailer generation. Phase 5 additionally emits typed factories for models and resources.
 5. Generated route/job registries and the application-owned control entry point for routes, workers, seeds, and OpenAPI.
 6. Unit tests, generated-module compilation, and generated-resource PostgreSQL integration coverage.
 

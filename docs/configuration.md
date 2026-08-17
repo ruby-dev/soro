@@ -9,9 +9,13 @@ config/{SORO_ENV}.yaml
 environment variables
 ```
 
-Phase 3 sections can be configured in YAML:
+Application infrastructure can be configured in YAML:
 
 ```yaml
+log:
+  level: info
+  format: auto
+
 http:
   port: 8080
   read_header_timeout: 5s
@@ -49,9 +53,11 @@ observability:
 
 Keep secrets such as SMTP passwords in environment variables rather than committed YAML.
 
-Phase 3 environment variables include:
+Environment variables include:
 
 ```text
+SORO_LOG_LEVEL
+SORO_LOG_FORMAT
 SORO_HTTP_READ_HEADER_TIMEOUT
 SORO_HTTP_READ_TIMEOUT
 SORO_HTTP_WRITE_TIMEOUT
@@ -79,3 +85,11 @@ SORO_OTEL_TIMEOUT
 ```
 
 Durations use Go duration syntax such as `5s` or `1m`. Boolean values use values accepted by `strconv.ParseBool`. Invalid configuration fails application startup. Production requires a database URL and the SMTP transport; console/capture mail is rejected.
+
+Log levels are `debug`, `info`, `warn`, and `error`. Log formats are `text`,
+`json`, and `auto`. Auto uses readable structured text in development/test and
+structured JSON in production. Soro's default logger redacts common sensitive
+attribute keys including passwords, authorization headers, cookies, API keys,
+access/refresh tokens, and client secrets. Applications can add sensitive keys
+or a custom `ReplaceAttr` hook through `observability.NewLogger`, then install
+the logger with `soro.WithLogger`.

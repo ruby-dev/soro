@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -18,6 +17,7 @@ import (
 	"github.com/datasoro/soro/database"
 	"github.com/datasoro/soro/generate"
 	"github.com/datasoro/soro/migrate"
+	"github.com/datasoro/soro/observability"
 	"github.com/spf13/cobra"
 )
 
@@ -342,7 +342,13 @@ func (state *commandState) withApp(ctx context.Context, execute func(*soro.App) 
 	if err != nil {
 		return err
 	}
-	logger := slog.New(slog.NewTextHandler(state.stderr, nil))
+	logger, err := observability.NewLogger(observability.LoggerConfig{
+		Writer: state.stderr, Environment: settings.App.Environment,
+		Level: settings.Log.Level, Format: settings.Log.Format,
+	})
+	if err != nil {
+		return err
+	}
 	app, err := soro.New(ctx, soro.WithConfig(settings), soro.WithLogger(logger))
 	if err != nil {
 		return err

@@ -43,6 +43,7 @@ This creates:
 ```text
 app/models/user.go
 app/models/user_test.go
+app/factories/user.go
 app/serializers/user.go
 app/validators/user.go
 app/api/v1/user_resource.go
@@ -50,7 +51,7 @@ app/api/v1/user_resource_test.go
 db/migrations/TIMESTAMP_create_users.sql
 ```
 
-It also regenerates the owned v1 route registry. Existing user-owned files cause the operation to fail before writes begin. `--force` is available for intentional replacement.
+It also regenerates the owned v1 route registry. The typed factory supplies deterministic, valid defaults and persists through the generated model's normal Soro repository. Existing user-owned files cause the operation to fail before writes begin. `--force` is available for intentional replacement.
 
 Supported field types are `string`, `text`, `bool`, `uuid`, `int`, `float`, `time`, and `json`. Supported options are `index`, `unique`, `null`, and `default=VALUE`. Base fields such as `id`, `name`, `metadata`, and timestamps cannot be redeclared.
 
