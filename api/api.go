@@ -53,6 +53,7 @@ type settings struct {
 	logger             *slog.Logger
 	requestIDGenerator func() string
 	middleware         []Middleware
+	audienceAuthorizer AudienceAuthorizer
 }
 
 type Middleware func(http.Handler) http.Handler
@@ -71,13 +72,18 @@ func WithMiddleware(middleware ...Middleware) Option {
 	return func(settings *settings) { settings.middleware = append(settings.middleware, middleware...) }
 }
 
+func WithAudienceAuthorizer(authorizer AudienceAuthorizer) Option {
+	return func(settings *settings) { settings.audienceAuthorizer = authorizer }
+}
+
 type API struct {
-	config     Config
-	mux        *http.ServeMux
-	huma       huma.API
-	logger     *slog.Logger
-	newID      func() string
-	middleware []Middleware
+	config             Config
+	mux                *http.ServeMux
+	huma               huma.API
+	logger             *slog.Logger
+	newID              func() string
+	middleware         []Middleware
+	audienceAuthorizer AudienceAuthorizer
 
 	routesMu sync.RWMutex
 	routes   []Route
@@ -129,7 +135,11 @@ func New(config Config, options ...Option) (*API, error) {
 			return nil, fmt.Errorf("api middleware cannot be nil")
 		}
 	}
-	return &API{config: config, mux: mux, huma: humaAPI, logger: configured.logger, newID: configured.requestIDGenerator, middleware: configured.middleware}, nil
+	return &API{
+		config: config, mux: mux, huma: humaAPI, logger: configured.logger,
+		newID: configured.requestIDGenerator, middleware: configured.middleware,
+		audienceAuthorizer: configured.audienceAuthorizer,
+	}, nil
 }
 
 func (api *API) Config() Config { return api.config }
@@ -175,7 +185,7 @@ func (router *Router) Huma() huma.API { return router.huma }
 func (router *Router) Prefix() string { return router.prefix }
 
 type Registrar interface {
-	Register(*Router, string)
+	Register(*Router, string) error
 }
 
 func (router *Router) Resource(path string, resource Registrar) error {
@@ -185,8 +195,7 @@ func (router *Router) Resource(path string, resource Registrar) error {
 	if !validRoutePath(path) {
 		return fmt.Errorf("invalid resource path %q", path)
 	}
-	resource.Register(router, path)
-	return nil
+	return resource.Register(router, path)
 }
 
 func validRoutePath(path string) bool {

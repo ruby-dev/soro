@@ -7,6 +7,8 @@ documented breaking changes as described in `docs/api-stability.md`.
 
 ### Added
 
+- Typed first-, second-, and third-party API audience policies with additive
+  scope and software-client enforcement plus OpenAPI metadata.
 - Phase 1 PostgreSQL persistence, transactions, lifecycle, validation, dirty
   tracking, metadata, and soft deletion.
 - Phase 2 Huma REST resources, OpenAPI, serialization, pagination, filtering,

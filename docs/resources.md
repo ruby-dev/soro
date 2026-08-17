@@ -34,6 +34,20 @@ Disabled: []api.Action{api.Destroy},
 
 `Authorize`, `Before`, and `After` callbacks receive the context, action, and current entity. For index authorization the entity is nil. Mutating callbacks, mapping, and persistence share one transaction. `Scope` can add application-owned Bun predicates to index queries. `ModifyOperation` can customize the Huma operation for a specific action.
 
+Resources are explicitly third-party by default. Use `Audience` for one policy
+across the resource and `Audiences` for action-specific overrides:
+
+```go
+Audience: api.ThirdParty("users.read"),
+Audiences: map[api.Action]api.AudiencePolicy{
+	api.Create:  api.ThirdParty("users.write"),
+	api.Update:  api.ThirdParty("users.write"),
+	api.Destroy: api.FirstParty("control_plane", "global.users.admin"),
+},
+```
+
+See [API audiences](api-audiences.md) for enforcement and OpenAPI semantics.
+
 Errors returned by handlers and callbacks should use the typed constructors in `github.com/ruby-dev/soro/errors`. They become the standard envelope without exposing internal causes:
 
 ```json

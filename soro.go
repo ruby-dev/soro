@@ -34,15 +34,16 @@ type App struct {
 }
 
 type appSettings struct {
-	config        *config.Config
-	db            *database.DB
-	api           *api.API
-	logger        *slog.Logger
-	jobs          *jobs.Client
-	mailer        *mail.Client
-	observability *observability.Provider
-	health        *health.Registry
-	mailTransport mail.Transport
+	config             *config.Config
+	db                 *database.DB
+	api                *api.API
+	logger             *slog.Logger
+	jobs               *jobs.Client
+	mailer             *mail.Client
+	observability      *observability.Provider
+	health             *health.Registry
+	mailTransport      mail.Transport
+	audienceAuthorizer api.AudienceAuthorizer
 }
 
 type Option func(*appSettings)
@@ -79,6 +80,12 @@ func WithObservability(provider *observability.Provider) Option {
 
 func WithHealth(registry *health.Registry) Option {
 	return func(app *appSettings) { app.health = registry }
+}
+
+// WithAudienceAuthorizer connects endpoint audience policies to the
+// application's principal scopes and software-client authentication.
+func WithAudienceAuthorizer(authorizer api.AudienceAuthorizer) Option {
+	return func(app *appSettings) { app.audienceAuthorizer = authorizer }
 }
 
 func New(ctx context.Context, options ...Option) (*App, error) {
@@ -193,7 +200,7 @@ func New(ctx context.Context, options ...Option) (*App, error) {
 		httpAPI, err := api.New(api.Config{
 			Title: settings.config.App.Name, Version: settings.config.App.Version,
 			BasePath: settings.config.HTTP.APIBasePath, MaxBodyBytes: settings.config.HTTP.MaxRequestBody,
-		}, api.WithLogger(settings.logger), api.WithMiddleware(settings.observability.HTTPMiddleware(observability.HTTPOptions{
+		}, api.WithLogger(settings.logger), api.WithAudienceAuthorizer(settings.audienceAuthorizer), api.WithMiddleware(settings.observability.HTTPMiddleware(observability.HTTPOptions{
 			Logger: settings.logger, RequestID: api.RequestID,
 			Fields: func(ctx context.Context) []slog.Attr {
 				if actorID := auth.ActorID(ctx); actorID != nil {

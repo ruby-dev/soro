@@ -45,6 +45,8 @@ type ResourceConfig[T, C, U, R any] struct {
 	Before          ResourceHook[T]
 	After           ResourceHook[T]
 	Scope           func(context.Context, *bun.SelectQuery) *bun.SelectQuery
+	Audience        AudiencePolicy
+	Audiences       map[Action]AudiencePolicy
 	ModifyOperation map[Action]func(*huma.Operation)
 }
 
@@ -79,6 +81,19 @@ func NewResource[T, C, U, R any](config ResourceConfig[T, C, U, R]) (*Resource[T
 			return nil, fmt.Errorf("resource disabled action %q is duplicated", action)
 		}
 		seen[action] = true
+	}
+	if !config.Audience.isZero() {
+		if err := config.Audience.Validate(); err != nil {
+			return nil, fmt.Errorf("resource audience: %w", err)
+		}
+	}
+	for action, policy := range config.Audiences {
+		if !validActions[action] {
+			return nil, fmt.Errorf("resource has audience for unknown action %q", action)
+		}
+		if err := policy.Validate(); err != nil {
+			return nil, fmt.Errorf("resource %s audience: %w", action, err)
+		}
 	}
 	return &Resource[T, C, U, R]{config: config}, nil
 }
@@ -128,34 +143,53 @@ type PaginationMeta struct {
 	Pages   int `json:"pages"`
 }
 
-func (resource *Resource[T, C, U, R]) Register(router *Router, path string) {
+func (resource *Resource[T, C, U, R]) Register(router *Router, path string) error {
 	tag := resource.config.Name
 	slug := strings.ReplaceAll(strings.Trim(path, "/"), "/", "-")
 	if !resource.disabled(Index) {
 		operation := resource.operation(Index, http.MethodGet, path, "List "+tag, "list-"+slug)
 		operation.Parameters = append(operation.Parameters, queryParameters(resource.config.Query)...)
-		Register(router, operation, resource.index)
+		if err := Register(router, operation, resource.index); err != nil {
+			return err
+		}
 	}
 	if !resource.disabled(Show) {
-		Register(router, resource.operation(Show, http.MethodGet, path+"/{id}", "Get "+tag, "get-"+singular(slug)), resource.show)
+		if err := Register(router, resource.operation(Show, http.MethodGet, path+"/{id}", "Get "+tag, "get-"+singular(slug)), resource.show); err != nil {
+			return err
+		}
 	}
 	if !resource.disabled(Create) {
 		op := resource.operation(Create, http.MethodPost, path, "Create "+tag, "create-"+singular(slug))
 		op.DefaultStatus = http.StatusCreated
-		Register(router, op, resource.create)
+		if err := Register(router, op, resource.create); err != nil {
+			return err
+		}
 	}
 	if !resource.disabled(Update) {
-		Register(router, resource.operation(Update, http.MethodPatch, path+"/{id}", "Update "+tag, "update-"+singular(slug)), resource.update)
+		if err := Register(router, resource.operation(Update, http.MethodPatch, path+"/{id}", "Update "+tag, "update-"+singular(slug)), resource.update); err != nil {
+			return err
+		}
 	}
 	if !resource.disabled(Destroy) {
 		op := resource.operation(Destroy, http.MethodDelete, path+"/{id}", "Delete "+tag, "delete-"+singular(slug))
 		op.DefaultStatus = http.StatusNoContent
-		Register(router, op, resource.destroy)
+		if err := Register(router, op, resource.destroy); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (resource *Resource[T, C, U, R]) operation(action Action, method, path, summary, operationID string) huma.Operation {
 	operation := huma.Operation{Method: method, Path: path, Summary: summary, OperationID: operationID, Tags: []string{resource.config.Name}}
+	policy := resource.config.Audience
+	if policy.isZero() {
+		policy = ThirdParty()
+	}
+	if override, ok := resource.config.Audiences[action]; ok {
+		policy = override
+	}
+	WithAudience(policy)(&operation)
 	if modify := resource.config.ModifyOperation[action]; modify != nil {
 		modify(&operation)
 	}

@@ -266,6 +266,7 @@ CI also generates an aggregate coverage profile and enforces a 70% statement flo
 - [Lifecycle](docs/lifecycle.md)
 - [Validation](docs/validation.md)
 - [Routing](docs/routing.md)
+- [API audiences](docs/api-audiences.md)
 - [Testing](docs/testing.md)
 - [API stability](docs/api-stability.md)
 - [Changelog](CHANGELOG.md)

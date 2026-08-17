@@ -18,10 +18,13 @@ func TestVersionedRouteRequestIDAndOpenAPI(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	var registerErr error
 	if err := framework.Version("v1", func(router *api.Router) {
-		api.Register(router, huma.Operation{
+		operation := huma.Operation{
 			Method: http.MethodGet, Path: "/hello", OperationID: "get-hello", Tags: []string{"Hello"},
-		}, func(context.Context, *struct{}) (*struct {
+		}
+		api.WithAudience(api.ThirdParty())(&operation)
+		registerErr = api.Register(router, operation, func(context.Context, *struct{}) (*struct {
 			Body struct {
 				Message string `json:"message"`
 			}
@@ -36,6 +39,9 @@ func TestVersionedRouteRequestIDAndOpenAPI(t *testing.T) {
 		})
 	}); err != nil {
 		t.Fatal(err)
+	}
+	if registerErr != nil {
+		t.Fatal(registerErr)
 	}
 	recorder := httptest.NewRecorder()
 	framework.Handler().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/v1/hello", nil))

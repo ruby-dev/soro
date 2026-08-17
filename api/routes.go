@@ -9,10 +9,13 @@ import (
 )
 
 type Route struct {
-	Method      string
-	Path        string
-	OperationID string
-	Tags        []string
+	Method         string
+	Path           string
+	OperationID    string
+	Tags           []string
+	Audience       Audience
+	RequiredScopes []string
+	ClientAudience string
 }
 
 func (api *API) Routes() []Route {
@@ -22,16 +25,21 @@ func (api *API) Routes() []Route {
 	for index, route := range api.routes {
 		routes[index] = route
 		routes[index].Tags = slices.Clone(route.Tags)
+		routes[index].RequiredScopes = slices.Clone(route.RequiredScopes)
 	}
 	return routes
 }
 
-func Register[I, O any](router *Router, operation huma.Operation, handler func(context.Context, *I) (*O, error)) {
+func Register[I, O any](router *Router, operation huma.Operation, handler func(context.Context, *I) (*O, error)) error {
 	if operation.Method == "" {
 		operation.Method = http.MethodGet
 	}
 	if operation.MaxBodyBytes == 0 {
 		operation.MaxBodyBytes = router.owner.config.MaxBodyBytes
+	}
+	policy, err := router.owner.prepareAudience(&operation)
+	if err != nil {
+		return err
 	}
 	huma.Register(router.huma, operation, func(ctx context.Context, input *I) (*O, error) {
 		output, err := handler(ctx, input)
@@ -43,7 +51,10 @@ func Register[I, O any](router *Router, operation huma.Operation, handler func(c
 	router.owner.addRoute(Route{
 		Method: operation.Method, Path: router.prefix + operation.Path,
 		OperationID: operation.OperationID, Tags: slices.Clone(operation.Tags),
+		Audience: policy.Audience, RequiredScopes: slices.Clone(policy.RequiredScopes),
+		ClientAudience: policy.ClientAudience,
 	})
+	return nil
 }
 
 func (api *API) addRoute(route Route) {

@@ -21,18 +21,23 @@ type MeOutput struct {
 	}
 }
 
-api.Register(v1, huma.Operation{
+operation := huma.Operation{
 	Method:      http.MethodGet,
 	Path:        "/users/me",
 	OperationID: "get-current-user",
 	Tags:        []string{"Users"},
-}, func(ctx context.Context, input *struct{}) (*MeOutput, error) {
+}
+api.WithAudience(api.ThirdParty("users.profile.read"))(&operation)
+err := api.Register(v1, operation, func(ctx context.Context, input *struct{}) (*MeOutput, error) {
 	// Return a typed output or a Soro error.
 	return output, nil
 })
 ```
 
-Huma serves OpenAPI JSON and YAML at `/openapi.json` and `/openapi.yaml`, schemas below `/schemas`, and interactive documentation at `/docs`. `app.API.Routes()` returns a copy of registered method, path, operation ID, and tag metadata. `Huma()` and `Mux()` are escape hatches for advanced integration.
+Every custom operation must declare a first-, second-, or third-party audience.
+Protected audiences are enforced through the application's configured audience
+authorizer. See [API audiences](api-audiences.md).
+
+Huma serves OpenAPI JSON and YAML at `/openapi.json` and `/openapi.yaml`, schemas below `/schemas`, and interactive documentation at `/docs`. `app.API.Routes()` returns a copy of registered method, path, operation ID, tags, audience, scopes, and client-audience metadata. `Huma()` and `Mux()` are escape hatches for advanced integration.
 
 Serve `app.API.Handler()`, not the raw mux, to retain request IDs and panic recovery. Request IDs are server-generated, available through `api.RequestID(ctx)`, and returned in `X-Request-ID`.
-
