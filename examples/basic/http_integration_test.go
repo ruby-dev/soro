@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/datasoro/soro"
-	"github.com/datasoro/soro/api"
-	"github.com/datasoro/soro/examples/basic"
-	"github.com/datasoro/soro/repository"
-	"github.com/datasoro/soro/testutil"
+	"github.com/ruby-dev/soro"
+	"github.com/ruby-dev/soro/api"
+	"github.com/ruby-dev/soro/examples/basic"
+	"github.com/ruby-dev/soro/repository"
+	"github.com/ruby-dev/soro/testutil"
 )
 
 func TestAccountUserProjectAPI(t *testing.T) {

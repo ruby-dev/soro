@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datasoro/soro/health"
+	"github.com/ruby-dev/soro/health"
 )
 
 func TestHealthAndReadiness(t *testing.T) {

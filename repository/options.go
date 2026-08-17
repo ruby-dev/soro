@@ -3,8 +3,8 @@ package repository
 import (
 	"time"
 
-	"github.com/datasoro/soro/lifecycle"
 	"github.com/google/uuid"
+	"github.com/ruby-dev/soro/lifecycle"
 )
 
 type UUIDGenerator func() (uuid.UUID, error)

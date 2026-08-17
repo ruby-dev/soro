@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/datasoro/soro/testutil"
+	"github.com/ruby-dev/soro/testutil"
 )
 
 func BenchmarkHealthRequest(b *testing.B) {

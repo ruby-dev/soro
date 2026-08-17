@@ -5,11 +5,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/datasoro/soro/api"
-	"github.com/datasoro/soro/query"
-	"github.com/datasoro/soro/repository"
-	"github.com/datasoro/soro/serializer"
 	"github.com/google/uuid"
+	"github.com/ruby-dev/soro/api"
+	"github.com/ruby-dev/soro/query"
+	"github.com/ruby-dev/soro/repository"
+	"github.com/ruby-dev/soro/serializer"
 )
 
 type AccountResponse struct {

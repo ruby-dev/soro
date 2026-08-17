@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/datasoro/soro/config"
-	"github.com/datasoro/soro/lifecycle"
-	"github.com/datasoro/soro/validation"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/ruby-dev/soro/config"
+	"github.com/ruby-dev/soro/lifecycle"
+	"github.com/ruby-dev/soro/validation"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 )

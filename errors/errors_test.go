@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	soroerrors "github.com/datasoro/soro/errors"
+	soroerrors "github.com/ruby-dev/soro/errors"
 )
 
 func TestInternalDoesNotSerializeCause(t *testing.T) {

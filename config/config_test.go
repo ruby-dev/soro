@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datasoro/soro/config"
+	"github.com/ruby-dev/soro/config"
 )
 
 func TestLoadPrecedence(t *testing.T) {

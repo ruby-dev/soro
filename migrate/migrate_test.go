@@ -3,7 +3,7 @@ package migrate_test
 import (
 	"testing"
 
-	"github.com/datasoro/soro/migrate"
+	"github.com/ruby-dev/soro/migrate"
 )
 
 func TestApplyRejectsUnorderedMigrations(t *testing.T) {

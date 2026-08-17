@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/datasoro/soro/cli"
+	"github.com/ruby-dev/soro/cli"
 )
 
 var version = cli.DevelopmentVersion

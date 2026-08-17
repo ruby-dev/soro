@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datasoro/soro/config"
-	"github.com/datasoro/soro/observability"
+	"github.com/ruby-dev/soro/config"
+	"github.com/ruby-dev/soro/observability"
 )
 
 func TestNewLoggerFormatsByEnvironmentAndRedacts(t *testing.T) {

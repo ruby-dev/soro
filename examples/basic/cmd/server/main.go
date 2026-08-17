@@ -6,11 +6,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/datasoro/soro"
-	"github.com/datasoro/soro/api"
-	"github.com/datasoro/soro/examples/basic"
-	"github.com/datasoro/soro/migrate"
-	"github.com/datasoro/soro/repository"
+	"github.com/ruby-dev/soro"
+	"github.com/ruby-dev/soro/api"
+	"github.com/ruby-dev/soro/examples/basic"
+	"github.com/ruby-dev/soro/migrate"
+	"github.com/ruby-dev/soro/repository"
 )
 
 func main() {

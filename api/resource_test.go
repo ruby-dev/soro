@@ -6,11 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/datasoro/soro/api"
-	soroerrors "github.com/datasoro/soro/errors"
-	"github.com/datasoro/soro/examples/basic"
-	"github.com/datasoro/soro/repository"
-	"github.com/datasoro/soro/serializer"
+	"github.com/ruby-dev/soro/api"
+	soroerrors "github.com/ruby-dev/soro/errors"
+	"github.com/ruby-dev/soro/examples/basic"
+	"github.com/ruby-dev/soro/repository"
+	"github.com/ruby-dev/soro/serializer"
 )
 
 func TestResourceDisabledOperationsAndAuthorization(t *testing.T) {

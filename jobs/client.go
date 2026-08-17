@@ -10,12 +10,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/datasoro/soro/database"
-	"github.com/datasoro/soro/observability"
 	"github.com/riverqueue/river"
 	"github.com/riverqueue/river/riverdriver/riverdatabasesql"
 	"github.com/riverqueue/river/rivermigrate"
 	"github.com/riverqueue/river/rivertype"
+	"github.com/ruby-dev/soro/database"
+	"github.com/ruby-dev/soro/observability"
 	"go.opentelemetry.io/otel/propagation"
 )
 

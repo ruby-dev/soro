@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datasoro/soro/lifecycle"
-	"github.com/datasoro/soro/model"
+	"github.com/ruby-dev/soro/lifecycle"
+	"github.com/ruby-dev/soro/model"
 )
 
 type benchmarkEntity struct {

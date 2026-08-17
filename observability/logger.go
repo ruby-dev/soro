@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/datasoro/soro/config"
+	"github.com/ruby-dev/soro/config"
 )
 
 const RedactedValue = "[REDACTED]"

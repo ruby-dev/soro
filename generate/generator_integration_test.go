@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datasoro/soro/internal/testdb"
-	"github.com/datasoro/soro/migrate"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/ruby-dev/soro/internal/testdb"
+	"github.com/ruby-dev/soro/migrate"
 )
 
 func TestGeneratedResourceMigrationOnPostgreSQL(t *testing.T) {

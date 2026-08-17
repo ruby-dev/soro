@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/datasoro/soro/factory"
+	"github.com/ruby-dev/soro/factory"
 )
 
 func BenchmarkBuild(b *testing.B) {

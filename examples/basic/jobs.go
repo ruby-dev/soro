@@ -3,10 +3,10 @@ package basic
 import (
 	"context"
 
-	"github.com/datasoro/soro/jobs"
-	"github.com/datasoro/soro/mail"
-	"github.com/datasoro/soro/repository"
 	"github.com/google/uuid"
+	"github.com/ruby-dev/soro/jobs"
+	"github.com/ruby-dev/soro/mail"
+	"github.com/ruby-dev/soro/repository"
 )
 
 type SendWelcomeEmail struct {

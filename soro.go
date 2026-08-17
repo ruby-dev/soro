@@ -10,14 +10,14 @@ import (
 	"os"
 	"sync"
 
-	"github.com/datasoro/soro/api"
-	"github.com/datasoro/soro/auth"
-	"github.com/datasoro/soro/config"
-	"github.com/datasoro/soro/database"
-	"github.com/datasoro/soro/health"
-	"github.com/datasoro/soro/jobs"
-	"github.com/datasoro/soro/mail"
-	"github.com/datasoro/soro/observability"
+	"github.com/ruby-dev/soro/api"
+	"github.com/ruby-dev/soro/auth"
+	"github.com/ruby-dev/soro/config"
+	"github.com/ruby-dev/soro/database"
+	"github.com/ruby-dev/soro/health"
+	"github.com/ruby-dev/soro/jobs"
+	"github.com/ruby-dev/soro/mail"
+	"github.com/ruby-dev/soro/observability"
 )
 
 type App struct {

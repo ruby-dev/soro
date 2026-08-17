@@ -7,7 +7,7 @@ PostgreSQL database because Soro intentionally relies on PostgreSQL behavior.
 
 ## Test application
 
-Import `github.com/datasoro/soro/testutil`; its package name is `sorotest`.
+Import `github.com/ruby-dev/soro/testutil`; its package name is `sorotest`.
 `sorotest.New` creates a unique schema inside `SORO_TEST_DATABASE_URL`, boots a
 test-environment application, installs capture mail, and starts an in-process
 HTTP server. The schema, server, App, and connection pool are cleaned up by the

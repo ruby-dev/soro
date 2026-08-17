@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/datasoro/soro/examples/basic"
-	"github.com/datasoro/soro/internal/testdb"
-	"github.com/datasoro/soro/migrate"
-	"github.com/datasoro/soro/model"
-	"github.com/datasoro/soro/repository"
+	"github.com/ruby-dev/soro/examples/basic"
+	"github.com/ruby-dev/soro/internal/testdb"
+	"github.com/ruby-dev/soro/migrate"
+	"github.com/ruby-dev/soro/model"
+	"github.com/ruby-dev/soro/repository"
 )
 
 func BenchmarkCreateFindForceDelete(b *testing.B) {

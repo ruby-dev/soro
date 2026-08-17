@@ -34,7 +34,7 @@ Disabled: []api.Action{api.Destroy},
 
 `Authorize`, `Before`, and `After` callbacks receive the context, action, and current entity. For index authorization the entity is nil. Mutating callbacks, mapping, and persistence share one transaction. `Scope` can add application-owned Bun predicates to index queries. `ModifyOperation` can customize the Huma operation for a specific action.
 
-Errors returned by handlers and callbacks should use the typed constructors in `github.com/datasoro/soro/errors`. They become the standard envelope without exposing internal causes:
+Errors returned by handlers and callbacks should use the typed constructors in `github.com/ruby-dev/soro/errors`. They become the standard envelope without exposing internal causes:
 
 ```json
 {

@@ -1,4 +1,4 @@
-module github.com/datasoro/soro
+module github.com/ruby-dev/soro
 
 go 1.26.0
 

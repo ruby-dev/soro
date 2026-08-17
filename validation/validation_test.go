@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	soroerrors "github.com/datasoro/soro/errors"
-	"github.com/datasoro/soro/validation"
+	soroerrors "github.com/ruby-dev/soro/errors"
+	"github.com/ruby-dev/soro/validation"
 )
 
 func TestDeclarativeValidationNormalizesFields(t *testing.T) {

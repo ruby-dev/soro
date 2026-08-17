@@ -10,14 +10,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datasoro/soro"
-	"github.com/datasoro/soro/api"
-	"github.com/datasoro/soro/config"
-	"github.com/datasoro/soro/examples/basic"
-	"github.com/datasoro/soro/internal/testdb"
-	"github.com/datasoro/soro/mail"
-	"github.com/datasoro/soro/migrate"
-	"github.com/datasoro/soro/repository"
+	"github.com/ruby-dev/soro"
+	"github.com/ruby-dev/soro/api"
+	"github.com/ruby-dev/soro/config"
+	"github.com/ruby-dev/soro/examples/basic"
+	"github.com/ruby-dev/soro/internal/testdb"
+	"github.com/ruby-dev/soro/mail"
+	"github.com/ruby-dev/soro/migrate"
+	"github.com/ruby-dev/soro/repository"
 )
 
 func TestCreateUserAtomicallyEnqueuesAndSendsWelcomeMail(t *testing.T) {

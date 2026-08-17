@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	soroerrors "github.com/datasoro/soro/errors"
 	"github.com/google/uuid"
+	soroerrors "github.com/ruby-dev/soro/errors"
 	"github.com/uptrace/bun"
 )
 

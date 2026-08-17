@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/danielgtaylor/huma/v2"
-	soroerrors "github.com/datasoro/soro/errors"
+	soroerrors "github.com/ruby-dev/soro/errors"
 )
 
 type ErrorEnvelope struct {

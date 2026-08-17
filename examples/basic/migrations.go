@@ -1,6 +1,6 @@
 package basic
 
-import "github.com/datasoro/soro/migrate"
+import "github.com/ruby-dev/soro/migrate"
 
 var Migrations = []migrate.Migration{
 	{

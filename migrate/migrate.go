@@ -7,7 +7,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/datasoro/soro/database"
+	"github.com/ruby-dev/soro/database"
 	"github.com/uptrace/bun"
 )
 

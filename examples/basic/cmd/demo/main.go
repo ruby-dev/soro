@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/datasoro/soro"
-	"github.com/datasoro/soro/config"
-	"github.com/datasoro/soro/examples/basic"
-	"github.com/datasoro/soro/migrate"
-	"github.com/datasoro/soro/model"
-	"github.com/datasoro/soro/repository"
+	"github.com/ruby-dev/soro"
+	"github.com/ruby-dev/soro/config"
+	"github.com/ruby-dev/soro/examples/basic"
+	"github.com/ruby-dev/soro/migrate"
+	"github.com/ruby-dev/soro/model"
+	"github.com/ruby-dev/soro/repository"
 )
 
 func main() {

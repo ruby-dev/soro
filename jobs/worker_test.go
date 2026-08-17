@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/datasoro/soro/jobs"
+	"github.com/ruby-dev/soro/jobs"
 )
 
 type performArgs struct{ Value string }

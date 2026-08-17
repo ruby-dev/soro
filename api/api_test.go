@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/datasoro/soro/api"
+	"github.com/ruby-dev/soro/api"
 )
 
 func TestVersionedRouteRequestIDAndOpenAPI(t *testing.T) {

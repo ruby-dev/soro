@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	soroerrors "github.com/datasoro/soro/errors"
-	"github.com/datasoro/soro/repository"
+	soroerrors "github.com/ruby-dev/soro/errors"
+	"github.com/ruby-dev/soro/repository"
 )
 
 func TestInvalidModelContractIsReported(t *testing.T) {

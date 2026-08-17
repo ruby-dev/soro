@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/datasoro/soro/query"
+	"github.com/ruby-dev/soro/query"
 )
 
 func BenchmarkParse(b *testing.B) {

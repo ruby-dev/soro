@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datasoro/soro/observability"
+	"github.com/ruby-dev/soro/observability"
 	"github.com/uptrace/bun"
 )
 

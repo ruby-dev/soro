@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/datasoro/soro/serializer"
+	"github.com/ruby-dev/soro/serializer"
 )
 
 func TestFuncAndCollectionPreserveOrder(t *testing.T) {

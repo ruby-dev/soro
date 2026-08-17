@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/datasoro/soro/config"
-	"github.com/datasoro/soro/database"
+	"github.com/ruby-dev/soro/config"
+	"github.com/ruby-dev/soro/database"
 )
 
 func TestOpenRequiresURL(t *testing.T) {

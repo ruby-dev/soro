@@ -8,10 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datasoro/soro/config"
-	"github.com/datasoro/soro/database"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/ruby-dev/soro/config"
+	"github.com/ruby-dev/soro/database"
 )
 
 func Open(t testing.TB) *database.DB {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/datasoro/soro/model"
+	"github.com/ruby-dev/soro/model"
 )
 
 func TestMetadataTypedAccess(t *testing.T) {

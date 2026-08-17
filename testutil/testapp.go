@@ -9,13 +9,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/datasoro/soro"
-	"github.com/datasoro/soro/config"
-	"github.com/datasoro/soro/factory"
-	"github.com/datasoro/soro/internal/testdb"
-	"github.com/datasoro/soro/mail"
-	"github.com/datasoro/soro/migrate"
-	"github.com/datasoro/soro/repository"
+	"github.com/ruby-dev/soro"
+	"github.com/ruby-dev/soro/config"
+	"github.com/ruby-dev/soro/factory"
+	"github.com/ruby-dev/soro/internal/testdb"
+	"github.com/ruby-dev/soro/mail"
+	"github.com/ruby-dev/soro/migrate"
+	"github.com/ruby-dev/soro/repository"
 )
 
 type settings struct {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/datasoro/soro/observability"
+	"github.com/ruby-dev/soro/observability"
 )
 
 func TestImmediateDeliveryAndCaptureIsolation(t *testing.T) {

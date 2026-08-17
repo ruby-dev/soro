@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/datasoro/soro/query"
+	"github.com/ruby-dev/soro/query"
 )
 
 func queryParameters(definition query.Definition) []*huma.Param {

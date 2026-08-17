@@ -3,9 +3,9 @@ package migrate_test
 import (
 	"testing"
 
-	"github.com/datasoro/soro/examples/basic"
-	"github.com/datasoro/soro/internal/testdb"
-	"github.com/datasoro/soro/migrate"
+	"github.com/ruby-dev/soro/examples/basic"
+	"github.com/ruby-dev/soro/internal/testdb"
+	"github.com/ruby-dev/soro/migrate"
 )
 
 func TestGeneratedPostgreSQLMigrationAppliesAndRollsBack(t *testing.T) {

@@ -3,9 +3,9 @@ package basic_test
 import (
 	"testing"
 
-	"github.com/datasoro/soro/examples/basic"
-	"github.com/datasoro/soro/repository"
-	"github.com/datasoro/soro/testutil"
+	"github.com/ruby-dev/soro/examples/basic"
+	"github.com/ruby-dev/soro/repository"
+	"github.com/ruby-dev/soro/testutil"
 )
 
 func TestUserFactoryAndSeedAreUsable(t *testing.T) {

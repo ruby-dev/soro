@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	soroerrors "github.com/datasoro/soro/errors"
-	"github.com/datasoro/soro/query"
 	"github.com/google/uuid"
+	soroerrors "github.com/ruby-dev/soro/errors"
+	"github.com/ruby-dev/soro/query"
 )
 
 func TestParsePaginationFiltersSearchAndSort(t *testing.T) {

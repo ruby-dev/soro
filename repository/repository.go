@@ -9,13 +9,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/datasoro/soro/auth"
-	"github.com/datasoro/soro/database"
-	soroerrors "github.com/datasoro/soro/errors"
-	"github.com/datasoro/soro/lifecycle"
-	"github.com/datasoro/soro/model"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/ruby-dev/soro/auth"
+	"github.com/ruby-dev/soro/database"
+	soroerrors "github.com/ruby-dev/soro/errors"
+	"github.com/ruby-dev/soro/lifecycle"
+	"github.com/ruby-dev/soro/model"
 	"github.com/uptrace/bun"
 )
 

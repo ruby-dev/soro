@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const FrameworkModule = "github.com/datasoro/soro"
+const FrameworkModule = "github.com/ruby-dev/soro"
 
 type Generator struct {
 	Root         string
@@ -182,7 +182,7 @@ func (generator *Generator) GenerateMailer(rawName string) ([]string, error) {
 import (
 	"fmt"
 
-	"github.com/datasoro/soro/mail"
+	"github.com/ruby-dev/soro/mail"
 )
 
 type %[1]sData struct {

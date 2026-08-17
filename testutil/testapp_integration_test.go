@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/datasoro/soro"
-	"github.com/datasoro/soro/factory"
-	"github.com/datasoro/soro/mail"
-	"github.com/datasoro/soro/migrate"
-	"github.com/datasoro/soro/model"
-	"github.com/datasoro/soro/testutil"
+	"github.com/ruby-dev/soro"
+	"github.com/ruby-dev/soro/factory"
+	"github.com/ruby-dev/soro/mail"
+	"github.com/ruby-dev/soro/migrate"
+	"github.com/ruby-dev/soro/model"
+	"github.com/ruby-dev/soro/testutil"
 )
 
 type user struct {

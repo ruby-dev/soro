@@ -12,12 +12,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/datasoro/soro"
-	"github.com/datasoro/soro/config"
-	"github.com/datasoro/soro/database"
-	"github.com/datasoro/soro/generate"
-	"github.com/datasoro/soro/migrate"
-	"github.com/datasoro/soro/observability"
+	"github.com/ruby-dev/soro"
+	"github.com/ruby-dev/soro/config"
+	"github.com/ruby-dev/soro/database"
+	"github.com/ruby-dev/soro/generate"
+	"github.com/ruby-dev/soro/migrate"
+	"github.com/ruby-dev/soro/observability"
 	"github.com/spf13/cobra"
 )
 

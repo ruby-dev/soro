@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/datasoro/soro/model"
+	"github.com/ruby-dev/soro/model"
 )
 
 type modelMetadata struct {

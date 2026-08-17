@@ -9,8 +9,8 @@ import (
 	"strings"
 	"unicode"
 
-	soroerrors "github.com/datasoro/soro/errors"
 	playground "github.com/go-playground/validator/v10"
+	soroerrors "github.com/ruby-dev/soro/errors"
 )
 
 type Validator interface {

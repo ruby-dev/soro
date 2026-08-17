@@ -24,7 +24,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-const instrumentationName = "github.com/datasoro/soro"
+const instrumentationName = "github.com/ruby-dev/soro"
 
 type Config struct {
 	ServiceName  string

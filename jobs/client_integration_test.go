@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/datasoro/soro/internal/testdb"
-	"github.com/datasoro/soro/jobs"
-	"github.com/datasoro/soro/observability"
+	"github.com/ruby-dev/soro/internal/testdb"
+	"github.com/ruby-dev/soro/jobs"
+	"github.com/ruby-dev/soro/observability"
 	"go.opentelemetry.io/otel/trace"
 )
 

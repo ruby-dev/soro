@@ -1,8 +1,8 @@
 package basic
 
 import (
-	"github.com/datasoro/soro/model"
 	"github.com/google/uuid"
+	"github.com/ruby-dev/soro/model"
 )
 
 type Project struct {

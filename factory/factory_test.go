@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/datasoro/soro/factory"
+	"github.com/ruby-dev/soro/factory"
 )
 
 type user struct {

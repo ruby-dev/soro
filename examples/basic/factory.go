@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/datasoro/soro/database"
-	soroerrors "github.com/datasoro/soro/errors"
-	"github.com/datasoro/soro/factory"
-	"github.com/datasoro/soro/model"
-	"github.com/datasoro/soro/repository"
 	"github.com/google/uuid"
+	"github.com/ruby-dev/soro/database"
+	soroerrors "github.com/ruby-dev/soro/errors"
+	"github.com/ruby-dev/soro/factory"
+	"github.com/ruby-dev/soro/model"
+	"github.com/ruby-dev/soro/repository"
 )
 
 func NewAccountFactory(accounts *repository.Repository[Account]) (*factory.Factory[Account], error) {

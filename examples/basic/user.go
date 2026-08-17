@@ -5,9 +5,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/datasoro/soro/lifecycle"
-	"github.com/datasoro/soro/model"
 	"github.com/google/uuid"
+	"github.com/ruby-dev/soro/lifecycle"
+	"github.com/ruby-dev/soro/model"
 )
 
 type User struct {

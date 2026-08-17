@@ -49,7 +49,7 @@ func renderModelTest(name Name) ([]byte, error) {
 import (
 	"testing"
 
-	"github.com/datasoro/soro/model"
+	"github.com/ruby-dev/soro/model"
 )
 
 func Test%sEmbedsSoroBase(t *testing.T) {

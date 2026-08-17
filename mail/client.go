@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/datasoro/soro/jobs"
-	"github.com/datasoro/soro/observability"
 	"github.com/riverqueue/river"
+	"github.com/ruby-dev/soro/jobs"
+	"github.com/ruby-dev/soro/observability"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
