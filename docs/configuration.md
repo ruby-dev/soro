@@ -12,6 +12,10 @@ environment variables
 Application infrastructure can be configured in YAML:
 
 ```yaml
+app:
+  name: customer-api
+  version: 0.1.0
+
 log:
   level: info
   format: auto
@@ -58,6 +62,7 @@ Environment variables include:
 ```text
 SORO_LOG_LEVEL
 SORO_LOG_FORMAT
+SORO_APP_VERSION
 SORO_HTTP_READ_HEADER_TIMEOUT
 SORO_HTTP_READ_TIMEOUT
 SORO_HTTP_WRITE_TIMEOUT

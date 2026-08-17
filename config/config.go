@@ -37,6 +37,7 @@ type LogConfig struct {
 
 type AppConfig struct {
 	Name        string `yaml:"name"`
+	Version     string `yaml:"version"`
 	Environment string `yaml:"environment"`
 }
 
@@ -95,7 +96,7 @@ type DatabaseConfig struct {
 
 func Defaults() Config {
 	return Config{
-		App: AppConfig{Name: "soro-app", Environment: Development},
+		App: AppConfig{Name: "soro-app", Version: "0.1.0", Environment: Development},
 		Log: LogConfig{Level: "info", Format: "auto"},
 		HTTP: HTTPConfig{
 			Port: 8080, APIBasePath: "/api", MaxRequestBody: 1024 * 1024,
@@ -161,6 +162,9 @@ func Load(options ...LoadOption) (*Config, error) {
 func (c Config) Validate() error {
 	if strings.TrimSpace(c.App.Name) == "" {
 		return errors.New("config: app.name is required")
+	}
+	if strings.TrimSpace(c.App.Version) == "" {
+		return errors.New("config: app.version is required")
 	}
 	switch c.App.Environment {
 	case Development, Test, Production:
@@ -261,6 +265,9 @@ func applyEnvironment(config *Config, lookup func(string) (string, bool)) error 
 	}
 	if value, ok := lookup("SORO_APP_NAME"); ok {
 		config.App.Name = value
+	}
+	if value, ok := lookup("SORO_APP_VERSION"); ok {
+		config.App.Version = value
 	}
 	if value, ok := lookup("SORO_HTTP_PORT"); ok {
 		parsed, err := strconv.Atoi(value)

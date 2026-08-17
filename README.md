@@ -4,7 +4,7 @@ Soro is an opinionated Go application framework for building production REST API
 
 Soro is developed by DataSoro. Its developer experience is inspired by the productivity of Rails API applications, while its implementation keeps normal Go structs, interfaces, generics, `context.Context`, explicit dependencies, PostgreSQL, and Bun available to application code.
 
-> Status: pre-release. Phases 1 through 4 are implemented; the public API is not stable.
+> Status: pre-release. Phases 1 through 5 are implemented; the public API is not stable.
 
 ## Implemented foundation
 
@@ -38,7 +38,7 @@ The current foundation includes:
 - generated application and PostgreSQL migration acceptance tests.
 - schema-isolated test applications, typed factories, HTTP helpers, captured mail assertions, and synchronous job-handler tests.
 
-Factories, richer test application bootstrapping, development tooling, benchmarks, and API stabilization belong to Phase 5.
+Phase 5 includes schema-isolated test applications, typed factories, development logging and secret redaction, generator customization, benchmark baselines, expanded examples, and the pre-v1 compatibility/release policy.
 
 ## CLI quick start
 
@@ -204,7 +204,7 @@ config/{SORO_ENV}.yaml
 environment variables
 ```
 
-Supported variables include `SORO_ENV`, `SORO_APP_NAME`, `DATABASE_URL`, `SORO_LOG_LEVEL`, `SORO_LOG_FORMAT`, HTTP timeout variables, `SORO_JOBS_*`, `SORO_MAIL_*`, `SMTP_*`, `SORO_OTEL_ENABLED`, `OTEL_EXPORTER_OTLP_ENDPOINT`, and the database pool variables. Unknown YAML fields fail startup. Production requires `DATABASE_URL` and SMTP mail configuration. The default logger uses readable text in development, JSON in production, and redacts standard secret-bearing fields. See [configuration](docs/configuration.md).
+Supported variables include `SORO_ENV`, `SORO_APP_NAME`, `SORO_APP_VERSION`, `DATABASE_URL`, `SORO_LOG_LEVEL`, `SORO_LOG_FORMAT`, HTTP timeout variables, `SORO_JOBS_*`, `SORO_MAIL_*`, `SMTP_*`, `SORO_OTEL_ENABLED`, `OTEL_EXPORTER_OTLP_ENDPOINT`, and the database pool variables. Unknown YAML fields fail startup. Production requires `DATABASE_URL` and SMTP mail configuration. The default logger uses readable text in development, JSON in production, and redacts standard secret-bearing fields. See [configuration](docs/configuration.md).
 
 ## Run the example
 
@@ -267,6 +267,9 @@ CI also generates an aggregate coverage profile and enforces a 70% statement flo
 - [Validation](docs/validation.md)
 - [Routing](docs/routing.md)
 - [Testing](docs/testing.md)
+- [API stability](docs/api-stability.md)
+- [Changelog](CHANGELOG.md)
+- [Release checklist](RELEASING.md)
 - [Resources](docs/resources.md)
 - [Querying](docs/querying.md)
 - [Serialization](docs/serialization.md)

@@ -126,7 +126,7 @@ func New(ctx context.Context, options ...Option) (*App, error) {
 		}
 		provider, err := observability.New(ctx, observability.Config{
 			ServiceName: settings.config.App.Name, Environment: settings.config.App.Environment,
-			Version: "0.0.0", OTLPEndpoint: endpoint, OTLPTimeout: settings.config.Observability.OTLPTimeout,
+			Version: settings.config.App.Version, OTLPEndpoint: endpoint, OTLPTimeout: settings.config.Observability.OTLPTimeout,
 		})
 		if err != nil {
 			cleanup()
@@ -191,7 +191,7 @@ func New(ctx context.Context, options ...Option) (*App, error) {
 	}
 	if settings.api == nil {
 		httpAPI, err := api.New(api.Config{
-			Title: settings.config.App.Name, Version: "0.0.0",
+			Title: settings.config.App.Name, Version: settings.config.App.Version,
 			BasePath: settings.config.HTTP.APIBasePath, MaxBodyBytes: settings.config.HTTP.MaxRequestBody,
 		}, api.WithLogger(settings.logger), api.WithMiddleware(settings.observability.HTTPMiddleware(observability.HTTPOptions{
 			Logger: settings.logger, RequestID: api.RequestID,

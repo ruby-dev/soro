@@ -36,6 +36,9 @@ func TestApplicationServicesAndInfrastructureEndpoints(t *testing.T) {
 	if app.Jobs == nil || app.Mailer == nil || app.Observability == nil || app.Health == nil {
 		t.Fatal("Phase 3 services are missing")
 	}
+	if app.API.OpenAPI().Info.Version != settings.App.Version {
+		t.Fatalf("OpenAPI version = %q, want %q", app.API.OpenAPI().Info.Version, settings.App.Version)
+	}
 
 	for path, status := range map[string]int{"/health": http.StatusOK, "/ready": http.StatusOK, "/metrics": http.StatusOK} {
 		response := httptest.NewRecorder()

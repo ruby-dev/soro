@@ -138,6 +138,12 @@ SORO_TEST_DATABASE_URL='postgres://postgres:postgres@localhost:5432/soro_test?ss
 When the variable is absent, PostgreSQL tests skip locally. CI always supplies
 it, so integration coverage cannot silently disappear there.
 
+Race detection uses the same URL with `go test -race ./...`. Go's ARM64 race
+runtime requires a compatible 48-bit virtual address layout; kernels exposing a
+47-bit VMA fail before tests start with a ThreadSanitizer diagnostic. Do not
+weaken host-wide ASLR settings to work around that. Soro's amd64 CI race job is
+the required fallback for such hosts.
+
 ## Benchmarks
 
 Pure lifecycle, query, and factory baselines run without services:

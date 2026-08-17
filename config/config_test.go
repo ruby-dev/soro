@@ -28,6 +28,7 @@ database:
 	environment := map[string]string{
 		"SORO_ENV":                    "test",
 		"SORO_APP_NAME":               "environment",
+		"SORO_APP_VERSION":            "2.3.4",
 		"SORO_HTTP_PORT":              "9090",
 		"SORO_LOG_LEVEL":              "debug",
 		"SORO_LOG_FORMAT":             "json",
@@ -47,7 +48,7 @@ database:
 	if err != nil {
 		t.Fatal(err)
 	}
-	if loaded.App.Name != "environment" || loaded.App.Environment != config.Test {
+	if loaded.App.Name != "environment" || loaded.App.Version != "2.3.4" || loaded.App.Environment != config.Test {
 		t.Fatalf("unexpected app config: %+v", loaded.App)
 	}
 	if loaded.Database.MaxConns != 7 || loaded.Database.ConnectTimeout != 2*time.Second {
@@ -74,6 +75,14 @@ func TestLoggingConfigValidation(t *testing.T) {
 	settings.Log.Format = "xml"
 	if err := settings.Validate(); err == nil || !strings.Contains(err.Error(), "log.format") {
 		t.Fatalf("expected log format error, got %v", err)
+	}
+}
+
+func TestApplicationVersionIsRequired(t *testing.T) {
+	settings := config.Defaults()
+	settings.App.Version = ""
+	if err := settings.Validate(); err == nil || !strings.Contains(err.Error(), "app.version") {
+		t.Fatalf("expected app version error, got %v", err)
 	}
 }
 

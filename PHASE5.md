@@ -1,6 +1,6 @@
 # Soro Phase 5: Developer Experience and Stabilization
 
-Status: in progress
+Status: implemented
 
 Phase 5 turns the implemented framework into something an application team can
 adopt, test, extend, and evaluate before the first tagged release. It does not
@@ -117,8 +117,11 @@ API review uses three rules:
    customization tests.
 4. **Implemented:** Benchmarks, complete documentation set, expanded
    Account/User/Project example, Compose PostgreSQL, and CI example verification.
-5. Exported API audit, pre-v1 compatibility policy, release checklist, full
-   formatting/test/race/vet/staticcheck/govulncheck gates, and status update.
+5. **Implemented:** Exported API audit, typed application version propagation,
+   pre-v1 compatibility policy, release checklist, formatting, PostgreSQL tests,
+   coverage, vet, staticcheck, and govulncheck gates. Race detection remains an
+   amd64 CI gate because the current ARM64 development kernel exposes an
+   unsupported 47-bit VMA to ThreadSanitizer.
 
 ## Phase boundary
 

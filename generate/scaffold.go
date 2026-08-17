@@ -58,7 +58,7 @@ func NewApplication(options NewOptions) ([]string, error) {
 		{path: "go.mod", content: []byte(moduleFile)},
 		{path: ".gitignore", content: []byte(".env\n.env.*\n!.env.example\ncoverage.out\n")},
 		{path: ".env.example", content: []byte("SORO_ENV=development\nDATABASE_URL=postgres://postgres:postgres@localhost:5432/" + strings.ReplaceAll(name, "-", "_") + "?sslmode=disable\n")},
-		{path: filepath.Join("config", "application.yaml"), content: []byte("app:\n  name: " + name + "\nhttp:\n  port: 8080\n  api_base_path: /api\n")},
+		{path: filepath.Join("config", "application.yaml"), content: []byte("app:\n  name: " + name + "\n  version: 0.1.0\nhttp:\n  port: 8080\n  api_base_path: /api\n")},
 		{path: filepath.Join("config", "development.yaml"), content: []byte("database:\n  url: postgres://postgres:postgres@localhost:5432/" + strings.ReplaceAll(name, "-", "_") + "?sslmode=disable\nmail:\n  transport: console\n")},
 		{path: filepath.Join("config", "test.yaml"), content: []byte("database:\n  url: postgres://postgres:postgres@localhost:5432/" + strings.ReplaceAll(name, "-", "_") + "_test?sslmode=disable\nmail:\n  transport: capture\nobservability:\n  enabled: false\n")},
 		{path: filepath.Join("app", "application.go"), content: []byte(applicationSource(options.Module)), goFile: true},
