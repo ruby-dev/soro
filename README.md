@@ -36,6 +36,7 @@ The current foundation includes:
 - conflict-safe application, model, resource, migration, serializer, validator, job, and mailer generators;
 - runtime-discovered PostgreSQL SQL migrations with explicit Up/Down sections;
 - generated application and PostgreSQL migration acceptance tests.
+- schema-isolated test applications, typed factories, HTTP helpers, captured mail assertions, and synchronous job-handler tests.
 
 Factories, richer test application bootstrapping, development tooling, benchmarks, and API stabilization belong to Phase 5.
 
@@ -256,8 +257,10 @@ CI also generates an aggregate coverage profile and enforces a 70% statement flo
 - [Phase 2 plan and implementation](PHASE2.md)
 - [Phase 3 plan and implementation](PHASE3.md)
 - [Phase 4 plan and implementation](PHASE4.md)
+- [Phase 5 plan and implementation](PHASE5.md)
 - [Architecture](ARCHITECTURE.md)
 - [Routing](docs/routing.md)
+- [Testing](docs/testing.md)
 - [Resources](docs/resources.md)
 - [Querying](docs/querying.md)
 - [Serialization](docs/serialization.md)

@@ -14,7 +14,7 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func Open(t *testing.T) *database.DB {
+func Open(t testing.TB) *database.DB {
 	t.Helper()
 	databaseURL := os.Getenv("SORO_TEST_DATABASE_URL")
 	if databaseURL == "" {

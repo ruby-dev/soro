@@ -1,6 +1,6 @@
 # Soro Architecture
 
-This document describes the implemented Phase 1 persistence foundation, Phase 2 HTTP/API layer, Phase 3 application services, and Phase 4 CLI/generator workflow. Future-phase designs are intentionally not presented as finished APIs.
+This document describes the implemented Phase 1 persistence foundation, Phase 2 HTTP/API layer, Phase 3 application services, Phase 4 CLI/generator workflow, and completed Phase 5 stabilization slices. Future designs are intentionally not presented as finished APIs.
 
 ## Dependency direction
 
@@ -30,6 +30,11 @@ soro App
 ```
 
 The `cli` and `generate` packages sit above this graph. They consume public framework APIs and emit application code; no runtime framework package imports them. The `cmd/soro` package is only the executable entry point.
+
+The `testutil` package (named `sorotest`) composes the root application and the
+internal schema-isolation helper; runtime packages never import it. The
+`factory` package is independent of Soro persistence and accepts an explicit
+typed persister, preventing test data construction from becoming another ORM.
 
 Lower packages never import the application container. Application models import only the primitives they use. There are no package globals controlling database, lifecycle, validation, or routing behavior. Huma's upstream error factory is process-wide; Soro installs its envelope factory once and otherwise keeps API state instance-owned.
 
@@ -153,3 +158,5 @@ PostgreSQL create/drop parse the configured URL with pgx, connect through the `p
 - Routes and OpenAPI generation boot the application and therefore currently require its configured PostgreSQL dependency to be reachable.
 - Lifecycle changes use Go field names; a change also retains its Bun column name for audit integrations.
 - APIs are pre-v1 and may change based on real application use.
+- Synchronous job execution tests handlers only; River insertion, retry, queue,
+  uniqueness, and scheduling behavior still require integration tests.

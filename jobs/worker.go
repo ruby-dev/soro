@@ -15,6 +15,22 @@ import (
 
 type Handler[T river.JobArgs] func(context.Context, T) error
 
+// Perform executes a typed handler synchronously without inserting a River job.
+// It is intended for focused handler tests; queue semantics remain the job
+// client's responsibility.
+func Perform[T river.JobArgs](ctx context.Context, args T, handler Handler[T]) error {
+	if handler == nil {
+		return fmt.Errorf("jobs handler is required")
+	}
+	if args.Kind() == "" {
+		return fmt.Errorf("jobs kind is required")
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return handler(ctx, args)
+}
+
 func Register[T river.JobArgs](client *Client, handler Handler[T]) error {
 	if client == nil || handler == nil {
 		return fmt.Errorf("jobs client and handler are required")
