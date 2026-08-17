@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/datasoro/soro/api"
 	"github.com/datasoro/soro/config"
 	"github.com/datasoro/soro/database"
 )
@@ -14,12 +15,14 @@ import (
 type App struct {
 	Config *config.Config
 	DB     *database.DB
+	API    *api.API
 	Logger *slog.Logger
 }
 
 type appSettings struct {
 	config *config.Config
 	db     *database.DB
+	api    *api.API
 	logger *slog.Logger
 }
 
@@ -36,6 +39,11 @@ func WithDatabase(db *database.DB) Option {
 
 func WithLogger(logger *slog.Logger) Option {
 	return func(app *appSettings) { app.logger = logger }
+}
+
+// WithAPI replaces the default HTTP API, primarily for tests and advanced setup.
+func WithAPI(httpAPI *api.API) Option {
+	return func(app *appSettings) { app.api = httpAPI }
 }
 
 func New(ctx context.Context, options ...Option) (*App, error) {
@@ -63,7 +71,18 @@ func New(ctx context.Context, options ...Option) (*App, error) {
 		}
 		settings.db = opened
 	}
-	return &App{Config: settings.config, DB: settings.db, Logger: settings.logger}, nil
+	if settings.api == nil {
+		httpAPI, err := api.New(api.Config{
+			Title: settings.config.App.Name, Version: "0.0.0",
+			BasePath: settings.config.HTTP.APIBasePath, MaxBodyBytes: settings.config.HTTP.MaxRequestBody,
+		}, api.WithLogger(settings.logger))
+		if err != nil {
+			_ = settings.db.Close()
+			return nil, fmt.Errorf("initialize Soro API: %w", err)
+		}
+		settings.api = httpAPI
+	}
+	return &App{Config: settings.config, DB: settings.db, API: settings.api, Logger: settings.logger}, nil
 }
 
 func (app *App) Close() error {

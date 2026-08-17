@@ -28,6 +28,7 @@ database:
 	environment := map[string]string{
 		"SORO_ENV":                "test",
 		"SORO_APP_NAME":           "environment",
+		"SORO_HTTP_PORT":          "9090",
 		"SORO_DATABASE_MAX_CONNS": "7",
 	}
 	loaded, err := config.Load(
@@ -45,6 +46,9 @@ database:
 	}
 	if loaded.Database.MaxConns != 7 || loaded.Database.ConnectTimeout != 2*time.Second {
 		t.Fatalf("unexpected database config: %+v", loaded.Database)
+	}
+	if loaded.HTTP.Port != 9090 {
+		t.Fatalf("unexpected HTTP config: %+v", loaded.HTTP)
 	}
 }
 

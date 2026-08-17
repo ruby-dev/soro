@@ -22,12 +22,19 @@ const (
 
 type Config struct {
 	App      AppConfig      `yaml:"app"`
+	HTTP     HTTPConfig     `yaml:"http"`
 	Database DatabaseConfig `yaml:"database"`
 }
 
 type AppConfig struct {
 	Name        string `yaml:"name"`
 	Environment string `yaml:"environment"`
+}
+
+type HTTPConfig struct {
+	Port           int    `yaml:"port"`
+	APIBasePath    string `yaml:"api_base_path"`
+	MaxRequestBody int64  `yaml:"max_request_body"`
 }
 
 type DatabaseConfig struct {
@@ -42,7 +49,8 @@ type DatabaseConfig struct {
 
 func Defaults() Config {
 	return Config{
-		App: AppConfig{Name: "soro-app", Environment: Development},
+		App:  AppConfig{Name: "soro-app", Environment: Development},
+		HTTP: HTTPConfig{Port: 8080, APIBasePath: "/api", MaxRequestBody: 1024 * 1024},
 		Database: DatabaseConfig{
 			MinConns:         0,
 			MaxConns:         10,
@@ -108,6 +116,15 @@ func (c Config) Validate() error {
 	if c.App.Environment == Production && strings.TrimSpace(c.Database.URL) == "" {
 		return errors.New("config: DATABASE_URL is required in production")
 	}
+	if c.HTTP.Port < 1 || c.HTTP.Port > 65535 {
+		return errors.New("config: http.port must be between 1 and 65535")
+	}
+	if !strings.HasPrefix(c.HTTP.APIBasePath, "/") || (len(c.HTTP.APIBasePath) > 1 && strings.HasSuffix(c.HTTP.APIBasePath, "/")) {
+		return errors.New("config: http.api_base_path must begin with / and must not end with /")
+	}
+	if c.HTTP.MaxRequestBody < 1 {
+		return errors.New("config: http.max_request_body must be positive")
+	}
 	if c.Database.MinConns < 0 {
 		return errors.New("config: database.min_conns cannot be negative")
 	}
@@ -146,6 +163,23 @@ func applyEnvironment(config *Config, lookup func(string) (string, bool)) error 
 	}
 	if value, ok := lookup("SORO_APP_NAME"); ok {
 		config.App.Name = value
+	}
+	if value, ok := lookup("SORO_HTTP_PORT"); ok {
+		parsed, err := strconv.Atoi(value)
+		if err != nil {
+			return fmt.Errorf("config: SORO_HTTP_PORT must be an integer: %w", err)
+		}
+		config.HTTP.Port = parsed
+	}
+	if value, ok := lookup("SORO_API_BASE_PATH"); ok {
+		config.HTTP.APIBasePath = value
+	}
+	if value, ok := lookup("SORO_MAX_REQUEST_BODY"); ok {
+		parsed, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return fmt.Errorf("config: SORO_MAX_REQUEST_BODY must be an integer: %w", err)
+		}
+		config.HTTP.MaxRequestBody = parsed
 	}
 	for name, destination := range map[string]*int32{
 		"SORO_DATABASE_MIN_CONNS": &config.Database.MinConns,
