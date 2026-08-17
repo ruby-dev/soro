@@ -17,6 +17,7 @@ const (
 	CodeUnauthorized    Code = "unauthorized"
 	CodeInternal        Code = "internal_error"
 	CodeInvalidArgument Code = "invalid_argument"
+	CodeInvalidQuery    Code = "invalid_query"
 )
 
 // Error is safe to serialize. Cause is deliberately omitted from JSON.
@@ -70,6 +71,10 @@ func Internal(cause error) *Error {
 
 func InvalidArgument(message string) *Error {
 	return &Error{Code: CodeInvalidArgument, Message: message}
+}
+
+func InvalidQuery(message string) *Error {
+	return &Error{Code: CodeInvalidQuery, Message: message}
 }
 
 // IsCode reports whether err contains a Soro error with code.
