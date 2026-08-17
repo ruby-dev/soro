@@ -4,14 +4,14 @@ Soro is an opinionated Go application framework for building production REST API
 
 Soro is developed by DataSoro. Its developer experience is inspired by the productivity of Rails API applications, while its implementation keeps normal Go structs, interfaces, generics, `context.Context`, explicit dependencies, PostgreSQL, and Bun available to application code.
 
-> Status: pre-release. Phases 1 through 3 are implemented; the public API is not stable.
+> Status: pre-release. Phases 1 through 4 are implemented; the public API is not stable.
 
 ## Implemented foundation
 
 The current foundation includes:
 
 - a typed application container and strict layered configuration;
-- one shared pgx pool bridged to Bun, ready to be shared with River later;
+- one shared pgx pool bridged to Bun and River;
 - UUIDv7 IDs, UTC timestamps, actor fields, and JSONB metadata;
 - typed generic repositories and Bun escape hatches;
 - transactional create, update, soft delete, restore, and force delete;
@@ -32,8 +32,37 @@ The current foundation includes:
 - OpenTelemetry tracing, OTLP HTTP export, and Prometheus metrics;
 - `/health`, `/ready`, and `/metrics` infrastructure endpoints;
 - configured HTTP timeouts and graceful server/worker shutdown.
+- the Cobra-based `soro` CLI with runtime, database, job, and OpenAPI commands;
+- conflict-safe application, model, resource, migration, serializer, validator, job, and mailer generators;
+- runtime-discovered PostgreSQL SQL migrations with explicit Up/Down sections;
+- generated application and PostgreSQL migration acceptance tests.
 
-CLI commands, generators, scaffolding, seed tooling, and developer-experience utilities belong to later phases.
+Factories, richer test application bootstrapping, development tooling, benchmarks, and API stabilization belong to Phase 5.
+
+## CLI quick start
+
+Build the pre-release CLI from this checkout:
+
+```sh
+mise exec -- go install ./cmd/soro
+```
+
+Until Soro has a tagged module release, point a generated application at this checkout:
+
+```sh
+soro new customer-api --module example.com/customer-api --soro-replace /path/to/soro
+cd customer-api
+soro generate resource User \
+  email:string:unique:index \
+  first_name:string \
+  last_name:string \
+  active:bool:default=true
+soro db create
+soro db migrate
+soro server
+```
+
+The resource generator writes a model, migration, serializer, input validators, CRUD resource, registration, and tests. Generated SQL uses UUID primary keys, JSONB metadata, `TIMESTAMPTZ`, soft deletion, and partial unique indexes. See [CLI and generators](docs/cli.md).
 
 ## Requirements
 
@@ -202,7 +231,7 @@ mise exec -- go run ./examples/basic/cmd/server
 
 Then open `http://localhost:8080/docs` or call `http://localhost:8080/api/v1/users`.
 
-Set `SORO_JOBS_ENABLED=true` to work the example's transactionally enqueued welcome-mail jobs in the server process. Production deployments can run the same library worker lifecycle from a dedicated process; the `soro jobs work` CLI arrives in Phase 4.
+Set `SORO_JOBS_ENABLED=true` to work the example's transactionally enqueued welcome-mail jobs in the server process. Generated applications can run a dedicated worker with `soro jobs work`.
 
 ## Tests
 
@@ -226,6 +255,7 @@ CI also generates an aggregate coverage profile and enforces a 70% statement flo
 - [Phase 1 plan](PHASE1.md)
 - [Phase 2 plan and implementation](PHASE2.md)
 - [Phase 3 plan and implementation](PHASE3.md)
+- [Phase 4 plan and implementation](PHASE4.md)
 - [Architecture](ARCHITECTURE.md)
 - [Routing](docs/routing.md)
 - [Resources](docs/resources.md)
@@ -235,6 +265,7 @@ CI also generates an aggregate coverage profile and enforces a 70% statement flo
 - [Jobs](docs/jobs.md)
 - [Mail](docs/mail.md)
 - [Observability](docs/observability.md)
+- [CLI and generators](docs/cli.md)
 
 ## License
 

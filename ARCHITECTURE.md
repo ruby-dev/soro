@@ -1,6 +1,6 @@
 # Soro Architecture
 
-This document describes the implemented Phase 1 persistence foundation, Phase 2 HTTP/API layer, and Phase 3 application services. Future-phase designs are intentionally not presented as finished APIs.
+This document describes the implemented Phase 1 persistence foundation, Phase 2 HTTP/API layer, Phase 3 application services, and Phase 4 CLI/generator workflow. Future-phase designs are intentionally not presented as finished APIs.
 
 ## Dependency direction
 
@@ -29,11 +29,13 @@ soro App
          └─ typed errors
 ```
 
+The `cli` and `generate` packages sit above this graph. They consume public framework APIs and emit application code; no runtime framework package imports them. The `cmd/soro` package is only the executable entry point.
+
 Lower packages never import the application container. Application models import only the primitives they use. There are no package globals controlling database, lifecycle, validation, or routing behavior. Huma's upstream error factory is process-wide; Soro installs its envelope factory once and otherwise keeps API state instance-owned.
 
 ## Application and database ownership
 
-`soro.App` owns its configuration, structured logger, API, and `database.DB`. `database.DB` owns one `pgxpool.Pool`, builds a `database/sql` facade with `pgx/v5/stdlib.OpenDBFromPool`, and gives that facade to Bun. This avoids a second connection pool and leaves a pgx-native pool available for River in Phase 3.
+`soro.App` owns its configuration, structured logger, API, and `database.DB`. `database.DB` owns one `pgxpool.Pool`, builds a `database/sql` facade with `pgx/v5/stdlib.OpenDBFromPool`, and gives that facade to Bun and River. This avoids a second connection pool.
 
 `DB.Bun()` and `DB.Pool()` are deliberate escape hatches. Closing the App closes Bun's SQL facade and then the pgx pool. A database supplied with `soro.WithDatabase` is replacement-friendly for tests and is also owned by the App.
 
@@ -131,13 +133,23 @@ The application-owned validation engine supports a model's `Validate(context.Con
 
 Migrations contain ordered names plus readable `Up` and `Down` PostgreSQL statements. Each migration runs in one Soro transaction and is recorded in `soro_schema_migrations`. Statement slices are intentional: pgx's extended query protocol executes one statement at a time while the surrounding transaction preserves migration atomicity.
 
-The example schema uses UUID, JSONB, TIMESTAMPTZ, and a partial unique index over active rows. Integration tests execute both migration directions against PostgreSQL rather than parsing SQL heuristically.
+Phase 4 adds directory discovery for `.sql` migrations using `-- +soro Up` and `-- +soro Down` markers. The loader splits PostgreSQL statements while preserving quoted strings, quoted identifiers, comments, and dollar-quoted function bodies, then passes ordinary statement slices into the same transactional migrator.
 
-## Known Phase 1 limits
+The example and generated schemas use UUID, JSONB, TIMESTAMPTZ, and partial unique indexes over active rows. Integration tests execute both migration directions against PostgreSQL rather than treating generated SQL as sufficient proof.
+
+## CLI and generated applications
+
+The global `soro` command owns infrastructure behavior that can be discovered from the current directory: configuration, SQL migration files, PostgreSQL administration, component generation, and launching Go processes. Application-owned route, OpenAPI, seed, and worker registrations cannot be dynamically imported by a compiled global binary. Generated applications therefore contain a small `cmd/app` control entry point built from normal imports. `soro routes`, `soro jobs work`, `soro db seed`, and `soro openapi generate` delegate to it through `go run`.
+
+Resource and job registration files are generator-owned and rewritten deterministically from marker comments in generated source. User-owned model, resource, serializer, validator, job, and mailer files are never overwritten unless `--force` is explicit. Resource generation renders and validates the complete output set before writing.
+
+PostgreSQL create/drop parse the configured URL with pgx, connect through the `postgres` maintenance database, and quote the resolved identifier. Protected maintenance databases are rejected; physical drop additionally requires the CLI's `--force` confirmation.
+
+## Known limits
 
 - Nested transactions join and become rollback-only; savepoints are not implemented.
 - Bulk operations are not yet part of the typed repository API.
-- Migration discovery and generation wait for the CLI phase; the runner itself is complete.
-- Only concrete Phase 1 configuration sections are exported.
+- Pre-release source builds require `soro new --soro-replace /path/to/soro` until a tagged Soro module version exists.
+- Routes and OpenAPI generation boot the application and therefore currently require its configured PostgreSQL dependency to be reachable.
 - Lifecycle changes use Go field names; a change also retains its Bun column name for audit integrations.
 - APIs are pre-v1 and may change based on real application use.
