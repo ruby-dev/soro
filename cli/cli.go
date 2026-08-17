@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/datasoro/soro"
 	"github.com/datasoro/soro/config"
@@ -125,10 +126,21 @@ func (state *commandState) newCommand() *cobra.Command {
 		},
 	}
 	command.Flags().StringVar(&module, "module", "", "Go module path (defaults to NAME)")
-	command.Flags().StringVar(&frameworkVersion, "soro-version", "v0.0.0", "Soro module version")
+	command.Flags().StringVar(&frameworkVersion, "soro-version", moduleVersion(state.version), "Soro module version")
 	command.Flags().StringVar(&replacement, "soro-replace", "", "local Soro source replacement for pre-release development")
 	command.Flags().BoolVar(&force, "force", false, "allow generation into an existing directory")
 	return command
+}
+
+func moduleVersion(version string) string {
+	version = strings.TrimSpace(version)
+	if version == "" || strings.Contains(version, "dev") {
+		return "v0.0.0"
+	}
+	if strings.HasPrefix(version, "v") {
+		return version
+	}
+	return "v" + version
 }
 
 func (state *commandState) serverCommand() *cobra.Command {

@@ -53,6 +53,14 @@ func TestCommandTreeAndVersion(t *testing.T) {
 	}
 }
 
+func TestModuleVersion(t *testing.T) {
+	for input, expected := range map[string]string{"": "v0.0.0", DevelopmentVersion: "v0.0.0", "1.2.3": "v1.2.3", "v2.0.0": "v2.0.0"} {
+		if actual := moduleVersion(input); actual != expected {
+			t.Fatalf("moduleVersion(%q) = %q, want %q", input, actual, expected)
+		}
+	}
+}
+
 func TestApplicationDelegatingCommands(t *testing.T) {
 	runner := &fakeRunner{}
 	var output bytes.Buffer
