@@ -52,7 +52,10 @@ func (config Config) Validate() error {
 type settings struct {
 	logger             *slog.Logger
 	requestIDGenerator func() string
+	middleware         []Middleware
 }
+
+type Middleware func(http.Handler) http.Handler
 
 type Option func(*settings)
 
@@ -64,12 +67,17 @@ func WithRequestIDGenerator(generator func() string) Option {
 	return func(settings *settings) { settings.requestIDGenerator = generator }
 }
 
+func WithMiddleware(middleware ...Middleware) Option {
+	return func(settings *settings) { settings.middleware = append(settings.middleware, middleware...) }
+}
+
 type API struct {
-	config Config
-	mux    *http.ServeMux
-	huma   huma.API
-	logger *slog.Logger
-	newID  func() string
+	config     Config
+	mux        *http.ServeMux
+	huma       huma.API
+	logger     *slog.Logger
+	newID      func() string
+	middleware []Middleware
 
 	routesMu sync.RWMutex
 	routes   []Route
@@ -116,7 +124,12 @@ func New(config Config, options ...Option) (*API, error) {
 	humaConfig.SchemasPath = config.SchemasPath
 	humaConfig.DocsRenderer = huma.DocsRendererScalar
 	humaAPI := humago.New(mux, humaConfig)
-	return &API{config: config, mux: mux, huma: humaAPI, logger: configured.logger, newID: configured.requestIDGenerator}, nil
+	for _, middleware := range configured.middleware {
+		if middleware == nil {
+			return nil, fmt.Errorf("api middleware cannot be nil")
+		}
+	}
+	return &API{config: config, mux: mux, huma: humaAPI, logger: configured.logger, newID: configured.requestIDGenerator, middleware: configured.middleware}, nil
 }
 
 func (api *API) Config() Config { return api.config }
@@ -129,7 +142,11 @@ func (api *API) OpenAPI() *huma.OpenAPI { return api.huma.OpenAPI() }
 
 // Handler returns the complete HTTP middleware chain.
 func (api *API) Handler() http.Handler {
-	return api.requestIDMiddleware(api.recoveryMiddleware(api.mux))
+	var handler http.Handler = api.recoveryMiddleware(api.mux)
+	for index := len(api.middleware) - 1; index >= 0; index-- {
+		handler = api.middleware[index](handler)
+	}
+	return api.requestIDMiddleware(handler)
 }
 
 var versionPattern = regexp.MustCompile(`^[a-z][a-z0-9_-]*$`)

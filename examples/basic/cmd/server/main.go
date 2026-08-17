@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"log"
-	"net/http"
-	"time"
+	"os/signal"
+	"syscall"
 
 	"github.com/datasoro/soro"
 	"github.com/datasoro/soro/api"
@@ -24,7 +22,14 @@ func main() {
 	if err := migrate.New(app.DB).Apply(context.Background(), basic.Migrations); err != nil {
 		log.Fatal(err)
 	}
-	users, err := basic.NewUserResource(repository.New[basic.User](app.DB))
+	if err := app.Jobs.Migrate(context.Background()); err != nil {
+		log.Fatal(err)
+	}
+	userRepository := repository.New[basic.User](app.DB)
+	if err := basic.RegisterJobs(app.Jobs, userRepository, app.Mailer); err != nil {
+		log.Fatal(err)
+	}
+	users, err := basic.NewUserResourceWithJobs(userRepository, app.Jobs)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,16 +41,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := &http.Server{
-		Addr:              fmt.Sprintf(":%d", app.Config.HTTP.Port),
-		Handler:           app.API.Handler(),
-		ReadHeaderTimeout: 5 * time.Second,
-		ReadTimeout:       15 * time.Second,
-		WriteTimeout:      30 * time.Second,
-		IdleTimeout:       60 * time.Second,
-	}
-	app.Logger.Info("starting Soro example", "address", server.Addr)
-	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+	app.Logger.Info("starting Soro example", "port", app.Config.HTTP.Port)
+	if err := app.Serve(ctx); err != nil {
 		log.Fatal(err)
 	}
 }

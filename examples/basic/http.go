@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/datasoro/soro/api"
+	"github.com/datasoro/soro/jobs"
 	"github.com/datasoro/soro/model"
 	"github.com/datasoro/soro/query"
 	"github.com/datasoro/soro/repository"
@@ -35,6 +36,14 @@ type UpdateUserInput struct {
 }
 
 func NewUserResource(dbRepository *repository.Repository[User]) (*api.Resource[User, CreateUserInput, UpdateUserInput, UserResponse], error) {
+	return newUserResource(dbRepository, nil)
+}
+
+func NewUserResourceWithJobs(dbRepository *repository.Repository[User], jobClient *jobs.Client) (*api.Resource[User, CreateUserInput, UpdateUserInput, UserResponse], error) {
+	return newUserResource(dbRepository, jobClient)
+}
+
+func newUserResource(dbRepository *repository.Repository[User], jobClient *jobs.Client) (*api.Resource[User, CreateUserInput, UpdateUserInput, UserResponse], error) {
 	return api.NewResource(api.ResourceConfig[User, CreateUserInput, UpdateUserInput, UserResponse]{
 		Name:       "Users",
 		Repository: dbRepository,
@@ -58,6 +67,13 @@ func NewUserResource(dbRepository *repository.Repository[User]) (*api.Resource[U
 				user.Active = *input.Active
 			}
 			return nil
+		},
+		After: func(ctx context.Context, action api.Action, user *User) error {
+			if action != api.Create || jobClient == nil {
+				return nil
+			}
+			_, err := jobClient.Enqueue(ctx, SendWelcomeEmail{UserID: user.ID}, jobs.Queue("mailers"))
+			return err
 		},
 		Query: query.Definition{
 			Filters:     []query.Field{{Name: "active", Column: "active", Type: query.Bool, Operators: []query.Operator{query.Eq, query.Neq}}},

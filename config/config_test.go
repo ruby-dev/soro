@@ -26,10 +26,14 @@ database:
   max_conns: 15
 `)
 	environment := map[string]string{
-		"SORO_ENV":                "test",
-		"SORO_APP_NAME":           "environment",
-		"SORO_HTTP_PORT":          "9090",
-		"SORO_DATABASE_MAX_CONNS": "7",
+		"SORO_ENV":                    "test",
+		"SORO_APP_NAME":               "environment",
+		"SORO_HTTP_PORT":              "9090",
+		"SORO_JOBS_ENABLED":           "true",
+		"SORO_JOBS_WORKERS":           "4",
+		"SORO_MAIL_TRANSPORT":         "capture",
+		"OTEL_EXPORTER_OTLP_ENDPOINT": "http://collector:4318",
+		"SORO_DATABASE_MAX_CONNS":     "7",
 	}
 	loaded, err := config.Load(
 		config.WithDirectory(directory),
@@ -49,6 +53,9 @@ database:
 	}
 	if loaded.HTTP.Port != 9090 {
 		t.Fatalf("unexpected HTTP config: %+v", loaded.HTTP)
+	}
+	if !loaded.Jobs.Enabled || loaded.Jobs.Workers != 4 || loaded.Mail.Transport != "capture" || loaded.Observability.OTLPEndpoint != "http://collector:4318" {
+		t.Fatalf("unexpected Phase 3 config: jobs=%+v mail=%+v observability=%+v", loaded.Jobs, loaded.Mail, loaded.Observability)
 	}
 }
 
@@ -71,6 +78,15 @@ func TestProductionRequiresDatabaseURL(t *testing.T) {
 	_, err := config.Load(config.WithDirectory(t.TempDir()), config.WithEnvLookup(environment))
 	if err == nil || !strings.Contains(err.Error(), "DATABASE_URL") {
 		t.Fatalf("expected DATABASE_URL error, got %v", err)
+	}
+}
+
+func TestProductionRejectsConsoleMail(t *testing.T) {
+	settings := config.Defaults()
+	settings.App.Environment = config.Production
+	settings.Database.URL = "postgres://production"
+	if err := settings.Validate(); err == nil || !strings.Contains(err.Error(), "mail transport") {
+		t.Fatalf("expected production mail error, got %v", err)
 	}
 }
 

@@ -77,6 +77,19 @@ func newDB(pool *pgxpool.Pool, sqlDB *sql.DB, bunDB *bun.DB) *DB {
 
 func (db *DB) Bun() *bun.DB { return db.bunDB }
 
+// SQL exposes the shared database/sql facade used by Bun. Integrations must
+// not close it independently of DB.
+func (db *DB) SQL() *sql.DB { return db.sqlDB }
+
+// SQLTx returns the active database/sql transaction carried by ctx.
+func (db *DB) SQLTx(ctx context.Context) (*sql.Tx, bool) {
+	state := transactionFrom(ctx, db)
+	if state == nil {
+		return nil, false
+	}
+	return state.tx.Tx, true
+}
+
 // Pool exposes the shared pool intended for pgx-native integrations such as River.
 func (db *DB) Pool() *pgxpool.Pool { return db.pool }
 

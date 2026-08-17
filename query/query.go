@@ -262,7 +262,7 @@ func Apply(selectQuery *bun.SelectQuery, params Params, definition Definition) *
 		case Lte:
 			selectQuery = selectQuery.Where("? <= ?", identifier, filter.Value)
 		case In:
-			selectQuery = selectQuery.Where("? IN (?)", identifier, bun.In(filter.Value))
+			selectQuery = selectQuery.Where("? IN (?)", identifier, bun.List(filter.Value))
 		case Contains:
 			selectQuery = selectQuery.Where("? ILIKE ? ESCAPE '!'", identifier, "%"+EscapeLike(filter.Value.(string))+"%")
 		}
