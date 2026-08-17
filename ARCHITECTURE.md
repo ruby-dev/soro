@@ -1,6 +1,6 @@
 # Soro Architecture
 
-This document describes the implemented Phase 1 foundation. Future-phase designs are intentionally not presented as finished APIs.
+This document describes the implemented Phase 1 persistence foundation and Phase 2 HTTP/API layer. Future-phase designs are intentionally not presented as finished APIs.
 
 ## Dependency direction
 
@@ -9,6 +9,10 @@ The root `soro` package constructs the application. Persistence flows through a 
 ```text
 soro App
   ├─ config
+  ├─ api ── Huma ── net/http
+  │    ├─ resource[T, Create, Update, Response]
+  │    ├─ query definitions
+  │    └─ serializer contracts
   └─ database ── pgxpool ── PostgreSQL
        ├─ Bun facade
        ├─ lifecycle registry
@@ -21,13 +25,25 @@ soro App
          └─ typed errors
 ```
 
-Lower packages never import the application container or repository layer. Application models import only the primitives they use. There are no package globals controlling database, lifecycle, or validation behavior.
+Lower packages never import the application container. Application models import only the primitives they use. There are no package globals controlling database, lifecycle, validation, or routing behavior. Huma's upstream error factory is process-wide; Soro installs its envelope factory once and otherwise keeps API state instance-owned.
 
 ## Application and database ownership
 
-`soro.App` owns its configuration, structured logger, and `database.DB`. `database.DB` owns one `pgxpool.Pool`, builds a `database/sql` facade with `pgx/v5/stdlib.OpenDBFromPool`, and gives that facade to Bun. This avoids a second connection pool and leaves a pgx-native pool available for River in Phase 3.
+`soro.App` owns its configuration, structured logger, API, and `database.DB`. `database.DB` owns one `pgxpool.Pool`, builds a `database/sql` facade with `pgx/v5/stdlib.OpenDBFromPool`, and gives that facade to Bun. This avoids a second connection pool and leaves a pgx-native pool available for River in Phase 3.
 
 `DB.Bun()` and `DB.Pool()` are deliberate escape hatches. Closing the App closes Bun's SQL facade and then the pgx pool. A database supplied with `soro.WithDatabase` is replacement-friendly for tests and is also owned by the App.
+
+## HTTP and resource flow
+
+`api.API` wraps Huma's standard-library adapter and owns its `http.ServeMux`. `API.Version` creates validated groups such as `/api/v1`; `api.Register` is the generic escape hatch for custom typed Huma handlers. `Handler` adds server-generated request IDs and panic recovery around the mux. Huma continues to own request decoding, JSON Schema validation, OpenAPI 3.1 generation, and documentation endpoints.
+
+A generic resource has four independent types: persistence model, create input, update input, and public response. Explicit create/update functions cross the input-to-model boundary. A serializer crosses the model-to-response boundary. This prevents reflective mass assignment and accidental exposure of metadata, actor fields, or soft-delete state.
+
+Mutating resource callbacks join one Soro transaction covering authorization, resource callbacks, repository lifecycle hooks, and persistence. `DELETE` invokes repository soft deletion; restore and force-delete remain explicit service operations and are not generated as HTTP routes.
+
+List handlers parse router-neutral URL queries against a resource-owned definition, apply filters/search/sorts using fixed Bun identifiers, execute a visible count query, and then execute the paged select. Client field names never enter SQL. Definitions are validated at resource construction and unknown parameters are rejected at request time.
+
+Every framework and Huma validation failure is rendered as the Soro error envelope. Internal errors remain available to server code but are replaced with a safe public message. The API maintains a route registry for inspection and the future CLI.
 
 ## Repository contract
 

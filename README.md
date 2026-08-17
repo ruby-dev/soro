@@ -4,9 +4,9 @@ Soro is an opinionated Go application framework for building production REST API
 
 Soro is developed by DataSoro. Its developer experience is inspired by the productivity of Rails API applications, while its implementation keeps normal Go structs, interfaces, generics, `context.Context`, explicit dependencies, PostgreSQL, and Bun available to application code.
 
-> Status: pre-release. Phase 1 is implemented; the public API is not stable.
+> Status: pre-release. Phases 1 and 2 are implemented; the public API is not stable.
 
-## Phase 1
+## Implemented foundation
 
 The current foundation includes:
 
@@ -21,8 +21,13 @@ The current foundation includes:
 - contextual and declarative validation with normalized errors;
 - readable PostgreSQL migrations and partial unique indexes;
 - PostgreSQL integration tests and a compiling example.
+- Huma-backed versioned routing, OpenAPI 3.1, and API documentation;
+- typed serializers and generic REST resources with explicit input mappers;
+- pagination, allowlisted filtering, literal `ILIKE` search, and sorting;
+- standard error envelopes, server-generated request IDs, and safe panic recovery;
+- resource authorization/callback/scope hooks and route introspection.
 
-HTTP resources, Huma, serialization, River jobs, mail, observability, and CLI generators belong to later phases.
+River jobs, mail, OpenTelemetry, metrics, health/readiness, production lifecycle management, and CLI generators belong to later phases.
 
 ## Requirements
 
@@ -77,6 +82,31 @@ if err := users.ForceDelete(ctx, deleted.ID); err != nil { /* explicit physical 
 
 Normal reads exclude deleted rows. `WithDeleted()` includes both states, and `OnlyDeleted()` returns deleted rows. Scope methods return repository copies and do not mutate shared state.
 
+## HTTP resources
+
+Application input, model, and response types remain separate. The compiling basic example configures a user resource with explicit mapping and serialization:
+
+```go
+users, err := basic.NewUserResource(repository.New[basic.User](app.DB))
+if err != nil { /* handle */ }
+
+err = app.API.Version("v1", func(v1 *api.Router) {
+	if err := v1.Resource("/users", users); err != nil { /* handle */ }
+})
+```
+
+This registers:
+
+```text
+GET    /api/v1/users
+GET    /api/v1/users/{id}
+POST   /api/v1/users
+PATCH  /api/v1/users/{id}
+DELETE /api/v1/users/{id}
+```
+
+`DELETE` is a soft delete. OpenAPI is served at `/openapi.json` and `/openapi.yaml`, with interactive documentation at `/docs`. List resources accept `page`, `per_page`, `search`, allowlisted `filter[...]` parameters, and `sort` fields configured by the resource.
+
 ## Transactions
 
 Repository methods join a Soro transaction carried by the callback context:
@@ -103,7 +133,7 @@ config/{SORO_ENV}.yaml
 environment variables
 ```
 
-Supported Phase 1 variables include `SORO_ENV`, `SORO_APP_NAME`, `DATABASE_URL`, `SORO_DATABASE_MIN_CONNS`, `SORO_DATABASE_MAX_CONNS`, and the documented duration fields in `config.Config`. Unknown YAML fields fail startup. Production requires `DATABASE_URL`.
+Supported variables include `SORO_ENV`, `SORO_APP_NAME`, `DATABASE_URL`, `SORO_HTTP_PORT`, `SORO_API_BASE_PATH`, `SORO_MAX_REQUEST_BODY`, `SORO_DATABASE_MIN_CONNS`, `SORO_DATABASE_MAX_CONNS`, and the documented duration fields in `config.Config`. Unknown YAML fields fail startup. Production requires `DATABASE_URL`.
 
 ## Run the example
 
@@ -123,7 +153,13 @@ export DATABASE_URL='postgres://postgres:postgres@localhost:5432/soro?sslmode=di
 mise exec -- go run ./examples/basic/cmd/demo
 ```
 
-The example applies its migration, creates and updates a user, soft-deletes it, finds it through `OnlyDeleted`, restores it, and explicitly force-deletes it.
+The Phase 1 persistence demonstration applies its migration, creates and updates a user, soft-deletes it, restores it, and explicitly force-deletes it. Run the Phase 2 HTTP example instead with:
+
+```sh
+mise exec -- go run ./examples/basic/cmd/server
+```
+
+Then open `http://localhost:8080/docs` or call `http://localhost:8080/api/v1/users`.
 
 ## Tests
 
@@ -140,11 +176,17 @@ SORO_TEST_DATABASE_URL='postgres://postgres:postgres@localhost:5432/soro_test?ss
 ```
 
 CI always supplies PostgreSQL, so integration tests cannot silently skip there.
+CI also generates an aggregate coverage profile and enforces a 70% statement floor.
 
 ## Design documents
 
 - [Phase 1 plan](PHASE1.md)
+- [Phase 2 plan and implementation](PHASE2.md)
 - [Architecture](ARCHITECTURE.md)
+- [Routing](docs/routing.md)
+- [Resources](docs/resources.md)
+- [Querying](docs/querying.md)
+- [Serialization](docs/serialization.md)
 
 ## License
 
